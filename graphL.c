@@ -16,7 +16,7 @@ struct _graphL{
 };
 
 void freeEdge(Item e) {
-    free(e);
+    free((Edge) e);
     return;
 }
 
@@ -56,16 +56,6 @@ void insertEdge(GraphL *g, int v, int w, int value){
 
 
     g->adjL[v] = insertUnsortedLinkedList(g->adjL[v], (Item) e);
-
-    e = (Edge *) malloc(sizeof(Edge));
-
-    e->v = w;
-    e->w = v;
-    e->value = value;
-
-
-    g->adjL[w] = insertUnsortedLinkedList(g->adjL[w], e);
-    
     return;
 }
 
@@ -90,27 +80,6 @@ void deleteEdge(GraphL *g, int v, int w){
             aux = getNextNodeLinkedList(aux);
         }
     }
-
-    /* same for g->adjL[w] */
-
-    e = (Edge *) getItemLinkedList(g->adjL[w]);
-    if(e->w == v) {
-        aux = g->adjL[w];
-        g->adjL[w] = getNextNodeLinkedList(g->adjL[w]);
-        freeLinkedListNode(aux, freeEdge);
-    }
-
-    aux = g->adjL[w];
-
-    while(aux != NULL) {
-        if(getNextNodeLinkedList(aux) != NULL) {
-            e = (Edge *) getItemLinkedList( getNextNodeLinkedList( aux ));
-            if(e->w == v)
-                deleteNextNode(aux, freeEdge);
-            aux = getNextNodeLinkedList(aux);
-        }
-    }
-
     return;
 }
 
