@@ -16,7 +16,7 @@ struct _graphL{
 };
 
 void freeEdge(Item e) {
-    free((Edge) e);
+    free((Edge *) e);
     return;
 }
 
