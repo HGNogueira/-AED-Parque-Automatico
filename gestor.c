@@ -8,6 +8,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     parkMap = mapInit(argv[1]);
+    
+    mapPrintStd(parkMap);
 
     return 0;
 }
