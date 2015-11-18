@@ -15,7 +15,9 @@
  */
 
 #include"point.h"
+#include"dbg.h"
 #include<stdlib.h>
+
 
 /*
  *  Data Type: Point

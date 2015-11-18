@@ -79,7 +79,7 @@ Map *mapInit(char *filename) {
     fp = fopen( filename, "r");
     check_file(fp);          /* file check debug macro */                   
 
-    fscanf(fp, "%d %d %d %d %d", &parkMap->N, &parkMap->M, &parkMap->P,
+    fscanf(fp, "%d %d %d %d %d\n", &parkMap->N, &parkMap->M, &parkMap->P,
                 &parkMap->E, &parkMap->S);
 
     /* initializing representation matrices */
@@ -102,11 +102,16 @@ Map *mapInit(char *filename) {
 
     for(p = 0; p < parkMap->P; p++) {
         /* read first m lines starting from beggining of floor contruction */
-        for(n = 0; n < parkMap->N; n++) {
-            for(m = parkMap->M - 1; m >= 0; m--)
-                parkMap->mapRep[n][m][p] = (char) fgetc(fp);
+        for(m = parkMap->M - 1; m >= 0 ; m--) {
+            for(n = 0; n < parkMap->N; n++) {
+                auxChar = (char) fgetc(fp);
+                while(auxChar == '\n' || auxChar == '\r')
+                    auxChar = (char) fgetc(fp);
+                parkMap->mapRep[n][m][p] = auxChar;
+            }
         }
-
+        
+        /* read access and entrance point info between floors */
         auxChar = (char) fgetc(fp);
         while(auxChar != '+') {
             switch(auxChar) {
@@ -120,12 +125,10 @@ Map *mapInit(char *filename) {
                 case 'A':
                     ungetc(auxChar, fp);
                     ID = (char*) malloc(sizeof(char) * IDSIZE);
-                    fscanf(fp, "%s %d %d %d %c", ID, &x, &y, &z, &desc);
+                    fscanf(fp, "%s %d %d %d %c\n", ID, &x, &y, &z, &desc);
                     parkMap->accessPoints[atA] = newPoint(ID, desc, x, y, z);
                     atA++;
                     break;
-                default:
-                    fprintf(stderr, "Wrong file format: %s\n", filename);
             }
             
             auxChar = (char) fgetc(fp);
@@ -133,6 +136,8 @@ Map *mapInit(char *filename) {
         }
         
     }
+
+    return parkMap;
 }               
 
 /*
@@ -154,12 +159,12 @@ void mapPrintStd(Map *parkMap) {
     int n, m, p; /* iteration variables */
 
     if(!parkMap)
-        return NULL;
+        return;
     
     for(p = 0; p < parkMap->P; p++) {
-        for(m = 0; m < parkMap->M; m++) {
+        for(m = parkMap->M - 1; m >= 0; m--) {
             for(n = 0; n < parkMap->N; n++)
-                fprintf(stdout, "%c", parkMap->mapRep[p][n][m]);
+                fprintf(stdout, "%c", parkMap->mapRep[n][m][p]);
             fprintf(stdout, "\n");
         }
         fprintf(stdout, "+\n");
@@ -167,6 +172,3 @@ void mapPrintStd(Map *parkMap) {
 
     return;
 }
-
-
-
