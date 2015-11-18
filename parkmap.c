@@ -17,26 +17,13 @@
 
 #include"parkmap.h"
 #include"dbg.h"
+#include"point.h"
 
 #include<stdio.h>
 #include<stdlib.h>
 
 #define IDSIZE 64
 
-
-/*
- *  Data Type: Point
- *
- *  Description: 
- *      struct containing information about an important Point located in a map
- *
- */
-
-struct _point{
-    int x, y, z; /* coordinates */
-    char* id;  /* Point identificator */
-    char desc; /* optional description character */
-};
 
 
 /*
@@ -148,37 +135,38 @@ Map *mapInit(char *filename) {
     }
 }               
 
-
-
 /*
  *  Function:
- *      newPoint
+ *      mapPrintStd
  *  Description:
- *      Creates a new point structure pointer
+ *      Prints the map representation in mapRep matrices
  *
  *  Arguments:
- *      All the required fields in a Point structure:
- *      char* ID  - Identifier
- *      char desc - Description
- *      int x, y, z - x, y, z coordinates
+ *      Pointer to struct Map
  *  Return value:
- *      struct Point *
+ *      none
  *
  *  Secondary effects:
- *      None
+ *      Writes to stdout
  */
-Point *newPoint(char *ID, char desc, int x, int y, int z) {
-    Point *myPoint;
 
-    myPoint = (Point*) malloc(sizeof(Point));
-    check_mem(myPoint);
+void mapPrintStd(Map *parkMap) {
+    int n, m, p; /* iteration variables */
 
-    myPoint->id = ID;
-    myPoint->desc = desc;
-    myPoint->x = x;
-    myPoint->y = y;
-    myPoint->z = z;
+    if(!parkMap)
+        return NULL;
     
-    return myPoint;
+    for(p = 0; p < parkMap->P; p++) {
+        for(m = 0; m < parkMap->M; m++) {
+            for(n = 0; n < parkMap->N; n++)
+                fprintf(stdout, "%c", parkMap->mapRep[p][n][m]);
+            fprintf(stdout, "\n");
+        }
+        fprintf(stdout, "+\n");
+    }
+
+    return;
 }
+
+
 
