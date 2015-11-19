@@ -220,6 +220,7 @@ void mapDestroy(Map *parkMap) {
     for(n = 0; n < parkMap->N; n++) {
         for(m = 0; m < parkMap->M; m++) 
             free(parkMap->mapRep[n][m]);
+        free(parkMap->mapRep[n]);
     }
     free(parkMap->mapRep);
     free(parkMap);
