@@ -67,12 +67,12 @@ struct _map{
 Map *mapInit(char *filename) {
     FILE *fp;
     Map *parkMap; 
-    int n, m, p; /* iteration variables */
-    char auxChar;
-    char ID[256], desc, *auxString;
-    int x, y, z; /* point coordinate values */
-    int atE = 0, atA = 0; /* control variables for access and entrance tables */
-
+    int n, m, p;                             /* iteration variables */
+    char auxChar, desc;                      /* auxiliary chars */
+    char ID[256], *auxString, skipLine[256]; /* auxiliary strings */
+    int x, y, z;                             /* point coordinate values */
+    int atE = 0, atA = 0;                    /* control variables for access 
+                                                and entrance tables */
 
     parkMap = (Map*) malloc(sizeof(Map));
     check_mem(parkMap);      /* memory check debug macro */
@@ -80,8 +80,11 @@ Map *mapInit(char *filename) {
     fp = fopen( filename, "r");
     check_file(fp);          /* file check debug macro */                   
 
-    fscanf(fp, "%d %d %d %d %d\n", &parkMap->N, &parkMap->M, &parkMap->P,
+    fscanf(fp, "%d %d %d %d %d", &parkMap->N, &parkMap->M, &parkMap->P,
                 &parkMap->E, &parkMap->S);
+
+    fgets(skipLine, 256, fp); /* make file stream point to next line) */
+    skipLine[0] = '\0';
 
     /* initializing representation matrices */
     parkMap->mapRep = (char***) malloc(sizeof(char**) * parkMap->N);
@@ -105,11 +108,10 @@ Map *mapInit(char *filename) {
         /* read first m lines starting from beggining of floor contruction */
         for(m = parkMap->M - 1; m >= 0 ; m--) {
             for(n = 0; n < parkMap->N; n++) {
-                auxChar = (char) fgetc(fp);
-                while(auxChar == '\n' || auxChar == '\r')
-                    auxChar = (char) fgetc(fp);
-                parkMap->mapRep[n][m][p] = auxChar;
+                parkMap->mapRep[n][m][p] = (char) fgetc(fp); 
             }
+            fgets(skipLine, 256, fp); /* make file stream point to next line) */
+            skipLine[0] = '\0';
         }
         
         /* read access and entrance point info between floors */
@@ -126,17 +128,18 @@ Map *mapInit(char *filename) {
                     break;
                 case 'A':
                     ungetc(auxChar, fp);   /* back to start of description */
-                    fscanf(fp, "%s %d %d %d %c\n", ID, &x, &y, &z, &desc);
+                    fscanf(fp, "%s %d %d %d %c", ID, &x, &y, &z, &desc);
                     auxString = strdup(ID);
                     ID[0] = '\0';
                     parkMap->accessPoints[atA] = newPoint(auxString, desc, x, y, z);
                     atA++;
                     break;
             }
-            
-            auxChar = (char) fgetc(fp);
-
+            auxChar = (char) fgetc(fp);    /* read next character from file */
         }
+        fgets(skipLine, 256, fp); /* make file stream point to next line) */
+        skipLine[0] = '\0';
+
         
     }
 
@@ -159,7 +162,7 @@ Map *mapInit(char *filename) {
  */
 
 void mapPrintStd(Map *parkMap) {
-    int n, m, p; /* iteration variables */
+    int n, m, p, i; /* iteration variables */
     Point *ap;
 
     if(!parkMap)
@@ -174,11 +177,11 @@ void mapPrintStd(Map *parkMap) {
         fprintf(stdout, "+\n");
     }
 
-    for(n = 0; n < parkMap->E; n++) {
+    for(i = 0; i < parkMap->E; i++) {
         ap = parkMap->entrancePoints[n];
         pointPrintStd(ap);
     }
-    for(n = 0; n < parkMap->S; n++) {
+    for(i = 0; i < parkMap->S; i++) {
         ap = parkMap->accessPoints[n];
         pointPrintStd(ap);
     }
