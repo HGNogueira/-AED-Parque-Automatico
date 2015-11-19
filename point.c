@@ -65,3 +65,9 @@ Point *newPoint(char *ID, char desc, int x, int y, int z) {
     
     return myPoint;
 }
+
+void pointPrintStd(Point *myPoint) {
+    fprintf(stdout, "%s %d %d %d %c\n", myPoint->id, myPoint->x, myPoint->y,
+            myPoint->z, myPoint->desc);
+    return;
+}

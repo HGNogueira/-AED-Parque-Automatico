@@ -21,6 +21,7 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 
 #define IDSIZE 64
 
@@ -68,7 +69,7 @@ Map *mapInit(char *filename) {
     Map *parkMap; 
     int n, m, p; /* iteration variables */
     char auxChar;
-    char *ID, desc;
+    char ID[256], desc, *auxString;
     int x, y, z; /* point coordinate values */
     int atE = 0, atA = 0; /* control variables for access and entrance tables */
 
@@ -117,16 +118,18 @@ Map *mapInit(char *filename) {
             switch(auxChar) {
                 case 'E':
                     ungetc(auxChar, fp);
-                    ID = (char*) malloc(sizeof(char) * IDSIZE);
                     fscanf(fp, "%s %d %d %d %c", ID, &x, &y, &z, &desc);
-                    parkMap->entrancePoints[atE] = newPoint(ID, desc, x, y, z);
+                    auxString = strdup(ID);
+                    ID[0] = '\0';
+                    parkMap->entrancePoints[atE] = newPoint(auxString, desc, x, y, z);
                     atE++;
                     break;
                 case 'A':
-                    ungetc(auxChar, fp);
-                    ID = (char*) malloc(sizeof(char) * IDSIZE);
+                    ungetc(auxChar, fp);   /* back to start of description */
                     fscanf(fp, "%s %d %d %d %c\n", ID, &x, &y, &z, &desc);
-                    parkMap->accessPoints[atA] = newPoint(ID, desc, x, y, z);
+                    auxString = strdup(ID);
+                    ID[0] = '\0';
+                    parkMap->accessPoints[atA] = newPoint(auxString, desc, x, y, z);
                     atA++;
                     break;
             }
@@ -157,6 +160,7 @@ Map *mapInit(char *filename) {
 
 void mapPrintStd(Map *parkMap) {
     int n, m, p; /* iteration variables */
+    Point *ap;
 
     if(!parkMap)
         return;
@@ -169,6 +173,16 @@ void mapPrintStd(Map *parkMap) {
         }
         fprintf(stdout, "+\n");
     }
+
+    for(n = 0; n < parkMap->E; n++) {
+        ap = parkMap->entrancePoints[n];
+        pointPrintStd(ap);
+    }
+    for(n = 0; n < parkMap->S; n++) {
+        ap = parkMap->accessPoints[n];
+        pointPrintStd(ap);
+    }
+
 
     return;
 }
