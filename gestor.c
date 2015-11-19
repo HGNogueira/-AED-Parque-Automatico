@@ -11,5 +11,7 @@ int main(int argc, char* argv[]) {
     
     mapPrintStd(parkMap);
 
+    mapDestroy(parkMap);
+
     return 0;
 }

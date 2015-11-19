@@ -10,5 +10,7 @@ typedef struct _map Map;
 Map *mapInit(char *filename);
 void mapPrintStd(Map *parkMap);
 
+void mapDestroy(Map *parkMap);
+
 
 #endif

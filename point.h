@@ -6,4 +6,6 @@ typedef struct _point Point;
 Point *newPoint(char* ID, char desc, int x, int y, int z);
 void pointPrintStd(Point *);
 
+void pointDestroy(Point *);
+
 #endif

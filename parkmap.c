@@ -139,9 +139,9 @@ Map *mapInit(char *filename) {
         }
         fgets(skipLine, 256, fp); /* make file stream point to next line) */
         skipLine[0] = '\0';
-
-        
     }
+
+    fclose(fp);
 
     return parkMap;
 }               
@@ -178,14 +178,49 @@ void mapPrintStd(Map *parkMap) {
     }
 
     for(i = 0; i < parkMap->E; i++) {
-        ap = parkMap->entrancePoints[n];
+        ap = parkMap->entrancePoints[i];
         pointPrintStd(ap);
     }
     for(i = 0; i < parkMap->S; i++) {
-        ap = parkMap->accessPoints[n];
+        ap = parkMap->accessPoints[i];
         pointPrintStd(ap);
     }
 
 
     return;
+}
+
+/*
+ *  Function:
+ *      mapDestroy
+ *  Description:
+ *      Destroys all memory previously allocated to build map structure
+ *
+ *  Arguments:
+ *      Pointer to struct Map
+ *  Return value:
+ *      none
+ *
+ *  Secondary effects:
+ *      the pointer sent in becomes NULL
+ */
+
+void mapDestroy(Map *parkMap) {
+    int i;
+    int n, m;
+
+    /* free special Points memory */
+    for(i = 0; i < parkMap->S; i++)
+        pointDestroy(parkMap->accessPoints[i]);
+    free(parkMap->accessPoints);
+    for(i = 0; i < parkMap->E; i++)
+        pointDestroy(parkMap->entrancePoints[i]);
+    free(parkMap->entrancePoints);
+
+    for(n = 0; n < parkMap->N; n++) {
+        for(m = 0; m < parkMap->M; m++) 
+            free(parkMap->mapRep[n][m]);
+    }
+    free(parkMap->mapRep);
+    free(parkMap);
 }

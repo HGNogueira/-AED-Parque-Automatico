@@ -71,3 +71,23 @@ void pointPrintStd(Point *myPoint) {
             myPoint->z, myPoint->desc);
     return;
 }
+
+/*
+ *  Function:
+ *      pointDestroy
+ *  Description:
+ *      destroys all memory previously allocated in Point structure
+ *
+ *  Arguments:
+ *      Pointer to struct Point
+ *  Return value:
+ *      void
+ *
+ *  Secondary effects:
+ *      turns argument into NULL pointer
+ */
+
+void pointDestroy(Point *myPoint) {
+    free(myPoint->id);
+    free(myPoint);
+}
