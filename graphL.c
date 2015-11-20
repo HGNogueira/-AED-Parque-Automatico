@@ -52,11 +52,11 @@ void GprintToFile(FILE *fp, GraphL *g) {
     Edge *e;
 
     for(i = 0; i < g->nodes; i++){
-        fprintf(fp, "%d - ",i);
+        fprintf(fp, "%d -",i);
         aux = g->adjL[i];
         while(aux != NULL){
             e = (Edge *) getItemLinkedList(aux);
-            fprintf(fp, "%d:%d", e->w, e->value);
+            fprintf(fp, " %d:%d", e->w, e->value);
             aux = getNextNodeLinkedList(aux);
         }
         fprintf(fp, "\n");

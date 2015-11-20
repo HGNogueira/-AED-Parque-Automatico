@@ -203,12 +203,11 @@ void buildGraphs(Map *parkMap) {
     #define TOP parkMap->mapRep[n][m+1][p]
     #define BOTTOM parkMap->mapRep[n][m-1][p]
 
-    for(n = 1; n < N - 1; n++){
+    for(p = 0; p < P; p++){
         for(m = 1; m < M - 1; m++){
-            for(p = 0; p < P; p++){
+            for(n = 1; n < N - 1; n++){
                 switch(parkMap->mapRep[n][m][p]){
-                    case '@':
-                        break;
+                    case '@': break;
                     case 'x':
                         break;
                     case 'u':
@@ -228,6 +227,9 @@ void buildGraphs(Map *parkMap) {
                         /* first for the case of the car graph
                          * then for the peon graph
                          *
+                         * the edge values are of 1 when in cGraph
+                         * and of 3 when in pGraph
+                         *
                          * check for all directions
                          */
 
@@ -243,7 +245,7 @@ void buildGraphs(Map *parkMap) {
                         } 
                         if( strchr("@xei.ud", (int) LEFT) == NULL){
                             insertEdge(pGraph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n-1,m,p,N,M,P), 1);
+                                    toIndex(n-1,m,p,N,M,P), 3);
                         }
 
                         /* RIGHT */
@@ -253,7 +255,7 @@ void buildGraphs(Map *parkMap) {
                         } 
                         if( strchr("@xei.ud", (int) RIGHT) == NULL){
                             insertEdge(pGraph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n+1,m,p,N,M,P), 1);
+                                    toIndex(n+1,m,p,N,M,P), 3);
                         }
 
                         /* TOP */
@@ -263,7 +265,7 @@ void buildGraphs(Map *parkMap) {
                         } 
                         if( strchr("@xei.ud", (int) TOP) == NULL){
                             insertEdge(pGraph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n,m+1,p,N,M,P), 1);
+                                    toIndex(n,m+1,p,N,M,P), 3);
                         }
 
                         /* BOTTOM */
@@ -273,7 +275,7 @@ void buildGraphs(Map *parkMap) {
                         } 
                         if( strchr("@xei.ud", (int) BOTTOM) == NULL){
                             insertEdge(pGraph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n,m-1,p,N,M,P), 1);
+                                    toIndex(n,m-1,p,N,M,P), 3);
                         }
                         break;
                     case '.':
@@ -293,25 +295,25 @@ void buildGraphs(Map *parkMap) {
                         /* LEFT */
                         if( strchr("@xei.ud", (int) LEFT) == NULL){
                             insertEdge(pGraph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n-1,m,p,N,M,P), 1);
+                                    toIndex(n-1,m,p,N,M,P), 3);
                         }
 
                         /* RIGHT */
                         if( strchr("@xei.ud", (int) RIGHT) == NULL){
                             insertEdge(pGraph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n+1,m,p,N,M,P), 1);
+                                    toIndex(n+1,m,p,N,M,P), 3);
                         }
 
                         /* TOP */
                         if( strchr("@xei.ud", (int) TOP) == NULL){
                             insertEdge(pGraph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n,m+1,p,N,M,P), 1);
+                                    toIndex(n,m+1,p,N,M,P), 3);
                         }
 
                         /* BOTTOM */
                         if( strchr("@xei.ud", (int) BOTTOM) == NULL){
                             insertEdge(pGraph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n,m-1,p,N,M,P), 1);
+                                    toIndex(n,m-1,p,N,M,P), 3);
                         }
 
                 }
@@ -353,16 +355,16 @@ void buildGraphs(Map *parkMap) {
          */
         if(x == 0) /* at the left wall, add path to the right of the entrance */
             insertEdge(pGraph, toIndex(x+1,y,z,N,M,P),
-                        toIndex(x,y,z,N,M,P), 1);
+                        toIndex(x,y,z,N,M,P), 3);
         if(x == parkMap->N - 1)                 /* at the right wall ... */
             insertEdge(pGraph, toIndex(x-1,y,z,N,M,P),
-                        toIndex(x,y,z,N,M,P), 1);
+                        toIndex(x,y,z,N,M,P), 3);
         if(y == parkMap->M - 1)                 /* at the Top wall */
             insertEdge(pGraph, toIndex(x,y-1,z,N,M,P),
-                        toIndex(x,y,z,N,M,P), 1);
+                        toIndex(x,y,z,N,M,P), 3);
         if(y == 0)                              /* at the bottom wall */
             insertEdge(pGraph, toIndex(x,y+1,z,N,M,P),
-                        toIndex(x,y,z,N,M,P), 1);
+                        toIndex(x,y,z,N,M,P), 3);
     }
 
     parkMap->cGraph = cGraph;
@@ -433,14 +435,12 @@ void mapPrintStd(Map *parkMap) {
  */
 
 void printCGraph(FILE *fp, Map *parkMap){
-    if(parkMap->cGraph!=NULL)
-        GprintToFile(fp, parkMap->cGraph);
+    GprintToFile(fp, parkMap->cGraph);
     return;
 }
 
 void printPGraph(FILE *fp, Map *parkMap){
-    if(parkMap->pGraph!=NULL)
-        GprintToFile(fp, parkMap->pGraph);
+    GprintToFile(fp, parkMap->pGraph);
     return;
 }
 
@@ -478,5 +478,9 @@ void mapDestroy(Map *parkMap) {
         free(parkMap->mapRep[n]);
     }
     free(parkMap->mapRep);
+
+    destroyGraph(parkMap->cGraph);
+    destroyGraph(parkMap->pGraph);
+
     free(parkMap);
 }
