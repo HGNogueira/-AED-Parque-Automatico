@@ -46,6 +46,24 @@ GraphL *graphInit(int nodes) {
     return g;
 }
 
+void GprintToFile(FILE *fp, GraphL *g) {
+    int i = 0;
+    LinkedList *aux;
+    Edge *e;
+
+    for(i = 0; i < g->nodes; i++){
+        fprintf(fp, "%d - ",i);
+        aux = g->adjL[i];
+        while(aux != NULL){
+            e = (Edge *) getItemLinkedList(aux);
+            fprintf(fp, "%d:%d", e->w, e->value);
+            aux = getNextNodeLinkedList(aux);
+        }
+        fprintf(fp, "\n");
+    }
+}
+
+
 void insertEdge(GraphL *g, int v, int w, int value){
     Edge *e;
     e = (Edge *) malloc(sizeof(Edge));
