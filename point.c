@@ -17,6 +17,7 @@
 #include"point.h"
 #include"dbg.h"
 #include<stdlib.h>
+#include<string.h>
 
 
 /*
@@ -66,25 +67,81 @@ Point *newPoint(char *ID, char desc, int x, int y, int z) {
     return myPoint;
 }
 
+
+/*
+ *  Functions: (getter functions)
+ *  
+ *  Description:
+ *      Simple Point field access functions
+ *
+ *  Arguments:
+ *      Point *
+ *      char * - in the case of getID
+ *  Return value:
+ *      int, (char in case of getDesc)
+ *
+ *  Secondary effects:
+ *      None
+ */
+
+int getID(Point *myPoint, char *toDup) {
+    toDup = strdup(myPoint->id);
+    if(toDup == NULL){
+        fprintf(stderr, "Memory error: couldn't copy ID\n");
+        return 1;
+    }
+    return 0;
+}
+
+int getx(Point *myPoint){
+    return myPoint->x;
+}
+int gety(Point *myPoint){
+    return myPoint->y;
+}
+int getz(Point *myPoint){
+    return myPoint->z;
+}
+
+char getDesc(Point *myPoint){
+    return myPoint->desc;
+}
+
+ /*
+ *  function:
+ *      pointPrintStd
+ *  description:
+ *      prints Point content field in pleasant way to stdout
+ *
+ *  arguments:
+ *      pointer to struct point
+ *  return value:
+ *      void
+ *
+ *  secondary effects:
+ *      none
+ */
+
 void pointPrintStd(Point *myPoint) {
     fprintf(stdout, "%s %d %d %d %c\n", myPoint->id, myPoint->x, myPoint->y,
             myPoint->z, myPoint->desc);
     return;
 }
 
+
 /*
- *  Function:
- *      pointDestroy
- *  Description:
- *      destroys all memory previously allocated in Point structure
+ *  function:
+ *      pointdestroy
+ *  description:
+ *      destroys all memory previously allocated in point structure
  *
- *  Arguments:
- *      Pointer to struct Point
- *  Return value:
+ *  arguments:
+ *      pointer to struct point
+ *  return value:
  *      void
  *
- *  Secondary effects:
- *      turns argument into NULL pointer
+ *  secondary effects:
+ *      turns argument into null pointer
  */
 
 void pointDestroy(Point *myPoint) {
