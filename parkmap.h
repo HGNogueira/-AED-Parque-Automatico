@@ -48,13 +48,91 @@
 
 typedef struct _map Map;
 
+/*
+ *  Function:
+ *    mapInit
+ *
+ *  Description:
+ *    saves all the information read from the map configuration file in
+ *    a Map structure
+ *
+ *  Arguments:
+ *    char *filename - name of the map configuration file
+ *
+ *  Return value:
+ *    returns pointer to new Map
+ */
+
 Map *mapInit(char *filename);
+
+
+/*
+ *  Function:
+ *    mapPrintStd 
+ *
+ *  Description: 
+ *    prints map configuration information to stdout
+ *
+ *  Arguments:
+ *    pointer to map structure to print
+ *
+ *  Return value:
+ *    void
+ */
+
+void mapPrintStd(Map *parkMap);
+
+
+/*
+ *  Function:
+ *    buildGraphs
+ *
+ *  Description: 
+ *    generates the car path graph and peon path graphs using the given
+ *    configuration
+ *
+ *  Arguments:
+ *    pointer to map structure
+ *
+ *  Return value:
+ *    void
+ */
+
+void buildGraphs(Map *parkMap);
+
+
+/*
+ *  Functions:
+ *    printCGraph
+ *    printPGraph
+ *
+ *  Description:
+ *    prints the car path and peon path graphs previously generated respectively
+ *
+ *  Arguments:
+ *    FILE *fp - stream to print out info
+ *
+ *  Return value:
+ *  void
+ */
 
 void printCGraph(FILE *fp, Map *parkMap);
 void printPGraph(FILE *fp, Map *parkMap);
 
-void mapPrintStd(Map *parkMap);
-void buildGraphs(Map *parkMap);
+
+/*
+ *  Functions:
+ *    mapDestroy
+ *
+ *  Description:
+ *    frees all previously allocated memory
+ *
+ *  Arguments:
+ *    pointer to map structure
+ *
+ *  Return value:
+ *    void
+ */
 
 void mapDestroy(Map *parkMap);
 

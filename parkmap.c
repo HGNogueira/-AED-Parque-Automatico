@@ -55,6 +55,9 @@ struct _map{
     Point **accessPoints; /* table of map access points */
     Point **entrancePoints; /* table of map entrance points */
 
+    LinkedList **ramps; /* table to save ramp Points, index corresponds
+                           to the floor */
+
     GraphL *cGraph, *pGraph; /* car and pedestrian graphs */
 };
 
@@ -115,7 +118,6 @@ Map *mapInit(char *filename) {
     parkMap->entrancePoints = (Point**) malloc(sizeof(Point*) * parkMap->E);
 
     /* start reading rest of file */
-
     for(p = 0; p < parkMap->P; p++) {
         /* read first m lines starting from beggining of floor contruction */
         for(m = parkMap->M - 1; m >= 0 ; m--) {
@@ -177,6 +179,7 @@ void buildGraphs(Map *parkMap) {
     int n, m, p, i;    /* iteration variables */
     int N, M ,P;
     int x, y, z;       /* point coordinates */
+    Point *auxRamp;
     GraphL *cGraph, *pGraph; /* adjacency list graphs */
 
     N = parkMap->N;
@@ -186,14 +189,21 @@ void buildGraphs(Map *parkMap) {
     /* initializing the graphs */
     cGraph = graphInit(N * M * P);
     pGraph = graphInit(N * M * P);
+
+    /* initialize ramps table in parkMap */
+    parkMap->ramps = (LinkedList**) malloc(sizeof(LinkedList*) * P);
+    for(i = 0; i < P; i++)
+        parkMap->ramps[i] = initLinkedList();
     
     /* start computing using the representation matrix
      *
      * n will go from 1 to N - 2 to ignore walls
      * m will go from 1 to M - 2 to ignore walls
      *
-     * later we will go over the entrance and access points
+     * later we will go over the entrance points
      * to complete the graph
+     * 
+     * wont need to go over access points because they are just incident nodes
      */
 
     /* useful macros to get neighbour chars */
@@ -211,14 +221,102 @@ void buildGraphs(Map *parkMap) {
                     case 'x':
                         break;
                     case 'u':
+                        /* insert upper ramp in appropriate floor ramps list */
+                        auxRamp = newPoint("Ramp", 'u', n, m, p);
+                        parkMap->ramps[p] = insertUnsortedLinkedList(
+                                                parkMap->ramps[p], 
+                                                (Item) auxRamp);
+
                         /* connect car path with upper floor */
                         insertEdge(cGraph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p + 1,N,M,P), 1);
+
+                        /* check for possibility of edge with neighbours */
+                        /* 
+                         * only eligible for cars
+                         *
+                         * the edge values are of 1 when in cGraph
+                         *
+                         * check for all directions
+                         */
+
+                        /* strchr function from <string.h> will be
+                         * used in order to check if a character 
+                         * belongs in a set of forbidden chars
+                         */
+
+                        /* LEFT */
+                        if( strchr("@exa", (int) LEFT) == NULL){
+                            insertEdge(cGraph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n-1,m,p,N,M,P), 1);
+                        } 
+
+                        /* RIGHT */
+                        if( strchr("@exa", (int) RIGHT) == NULL){
+                            insertEdge(cGraph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n+1,m,p,N,M,P), 1);
+                        } 
+
+                        /* TOP */
+                        if( strchr("@exa", (int) TOP) == NULL){
+                            insertEdge(cGraph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n,m+1,p,N,M,P), 1);
+                        } 
+
+                        /* BOTTOM */
+                        if( strchr("@exa", (int) BOTTOM) == NULL){
+                            insertEdge(cGraph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n,m-1,p,N,M,P), 1);
+                        } 
                         break;
                     case 'd':
+                        /* insert upper ramp in appropriate floor ramps list */
+                        auxRamp = newPoint("Ramp", 'd', n, m, p);
+                        parkMap->ramps[p] = insertUnsortedLinkedList(
+                                                parkMap->ramps[p], 
+                                                (Item) auxRamp);
+
                         /* connect car path with lower floor */
                         insertEdge(cGraph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p - 1,N,M,P), 1);
+
+                        /* check for possibility of edge with neighbours */
+                        /* 
+                         * only eligible for cars
+                         *
+                         * the edge values are of 1 when in cGraph
+                         *
+                         * check for all directions
+                         */
+
+                        /* strchr function from <string.h> will be
+                         * used in order to check if a character 
+                         * belongs in a set of forbidden chars
+                         */
+
+                        /* LEFT */
+                        if( strchr("@exa", (int) LEFT) == NULL){
+                            insertEdge(cGraph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n-1,m,p,N,M,P), 1);
+                        } 
+
+                        /* RIGHT */
+                        if( strchr("@exa", (int) RIGHT) == NULL){
+                            insertEdge(cGraph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n+1,m,p,N,M,P), 1);
+                        } 
+
+                        /* TOP */
+                        if( strchr("@exa", (int) TOP) == NULL){
+                            insertEdge(cGraph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n,m+1,p,N,M,P), 1);
+                        } 
+
+                        /* BOTTOM */
+                        if( strchr("@exa", (int) BOTTOM) == NULL){
+                            insertEdge(cGraph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n,m-1,p,N,M,P), 1);
+                        } 
                         break;
 
                     case ' ':   /* if on a free way */
@@ -344,28 +442,6 @@ void buildGraphs(Map *parkMap) {
                         toIndex(x,y+1,z,N,M,P), 1);
     }
 
-    /* go through access points and make new edges */
-    for(i = 0; i < parkMap->E; i++) {
-        x = getx(parkMap->accessPoints[i]);
-        y = gety(parkMap->accessPoints[i]);
-        z = getz(parkMap->accessPoints[i]);
-
-        /* this time we connect the edge from the path to the access point
-         * since the access point does not have an edge outward but inwards
-         */
-        if(x == 0) /* at the left wall, add path to the right of the entrance */
-            insertEdge(pGraph, toIndex(x+1,y,z,N,M,P),
-                        toIndex(x,y,z,N,M,P), 3);
-        if(x == parkMap->N - 1)                 /* at the right wall ... */
-            insertEdge(pGraph, toIndex(x-1,y,z,N,M,P),
-                        toIndex(x,y,z,N,M,P), 3);
-        if(y == parkMap->M - 1)                 /* at the Top wall */
-            insertEdge(pGraph, toIndex(x,y-1,z,N,M,P),
-                        toIndex(x,y,z,N,M,P), 3);
-        if(y == 0)                              /* at the bottom wall */
-            insertEdge(pGraph, toIndex(x,y+1,z,N,M,P),
-                        toIndex(x,y,z,N,M,P), 3);
-    }
 
     parkMap->cGraph = cGraph;
     parkMap->pGraph = pGraph;
@@ -435,7 +511,24 @@ void mapPrintStd(Map *parkMap) {
  */
 
 void printCGraph(FILE *fp, Map *parkMap){
+    int i = 0;
+    LinkedList *auxLink;
+    Point *auxPoint;
     GprintToFile(fp, parkMap->cGraph);
+
+    for(i = 0; i < parkMap->P; i++) {
+        auxLink = parkMap->ramps[i];
+        while(auxLink != NULL) {
+            auxPoint = (Point *) getItemLinkedList(auxLink);
+            fprintf(fp, "%c at (%d, %d, %d)\n", 
+                    getDesc(auxPoint),
+                    getx(auxPoint),
+                    gety(auxPoint),
+                    getz(auxPoint));
+            auxLink = getNextNodeLinkedList(auxLink);
+        }
+    }
+
     return;
 }
 
@@ -464,12 +557,15 @@ void mapDestroy(Map *parkMap) {
     int i;
     int n, m;
 
+    if(parkMap->mapRep == NULL)
+        return;
+    
     /* free special Points memory */
     for(i = 0; i < parkMap->S; i++)
-        pointDestroy(parkMap->accessPoints[i]);
+        pointDestroy((Item) parkMap->accessPoints[i]);
     free(parkMap->accessPoints);
     for(i = 0; i < parkMap->E; i++)
-        pointDestroy(parkMap->entrancePoints[i]);
+        pointDestroy((Item) parkMap->entrancePoints[i]);
     free(parkMap->entrancePoints);
 
     for(n = 0; n < parkMap->N; n++) {
@@ -479,8 +575,16 @@ void mapDestroy(Map *parkMap) {
     }
     free(parkMap->mapRep);
 
-    destroyGraph(parkMap->cGraph);
-    destroyGraph(parkMap->pGraph);
+    if(parkMap->ramps != NULL){
+        for(i = 0; i < parkMap->P; i++)
+            freeLinkedList(parkMap->ramps[i], pointDestroy);
+    }
+    free(parkMap->ramps);
+
+    if(parkMap->cGraph)
+        destroyGraph(parkMap->cGraph);
+    if(parkMap->pGraph)
+        destroyGraph(parkMap->pGraph);
 
     free(parkMap);
 }
