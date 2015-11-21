@@ -1,5 +1,6 @@
 #include"prioQ.h"
 #include<stdlib.h>
+#include<stdio.h>
 
 struct _prioQ{
     int N;             /* number of elements in queue */
@@ -176,6 +177,16 @@ void FixUp(PrioQ *PQ, int heapIndex) {
             continue;
         }
         return;
+    }
+    return;
+}
+
+void PQprintHeap(PrioQ* PQ) {
+    int i = 0;
+
+    for(i = 0; i < PQ->N; i++){
+        fprintf(stdout, "%d ", PQ->heap[i]);
+    fprintf(stdout, "\n");
     }
     return;
 }

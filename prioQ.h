@@ -8,6 +8,8 @@ void PQupdate();
 void PQupdateIndex(PrioQ *PQ, int index);
 int PQdelmin(PrioQ* PQ);
 
+void PQprintHeap(PrioQ* PQ);
+
 int PQempty();
 
 
