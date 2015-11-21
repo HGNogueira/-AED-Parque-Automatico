@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include"defs.h"
+#include"prioQ.h"
 
 struct _edge{
     int v;
@@ -111,6 +112,10 @@ void destroyGraph(GraphL *g) {
     free(g);
 }
 
+int getNodes(GraphL *g){
+    return g->nodes;
+}
+
 LinkedList *getEdgesOfNode(GraphL *g, int v) {
     LinkedList *aux = g->adjL[v];
     LinkedList *edges;
@@ -141,4 +146,53 @@ int getDestNode(Edge *e) {
 
 int getValueEdge(Edge *e) {
     return e->value;
+}
+
+/*
+ *  Function:
+ *    dijkstra
+ *
+ *  Description:
+ *    uses the Dijkstra algorithm to generate the shortest path tree starting
+ *    at the designated root
+ *    Will stop once the toFind node is reached
+ *
+ *  Arguments:
+ *    GraphL *g - graph to compute
+ *
+ *  Return value:
+ *    int indexed table st, delineating the path to take
+ */
+
+int *GLDrijkstra(GraphL *g, int root, int dest) {
+    int i; 
+    int v, w;
+    int *st;             /* indexed table, saves the origin node */
+    int *wt;             /* indexed table, saves length from tree */
+    int N;
+    PrioQ *PQ;
+
+    N = g->nodes;   /* get total number of nodes */
+
+    /* initialize and write to indexed tables */
+    st = (int*) malloc(sizeof(int) * N);
+    if(st == NULL) {
+        fprintf(stderr, "Memory error!\n");
+    }
+    
+    wt = (int*) malloc(sizeof(int) * N);
+    if(wt == NULL) {
+        fprintf(stderr, "Memory error!\n");
+    }
+
+    /* initialize new priority Queue */
+    PQ = NewPrioQ(N);
+
+    for(i = 0; i < N; i++) {
+
+        
+        st[i] = -1;
+
+        Insert(heap, wt[i]);
+    }
 }
