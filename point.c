@@ -16,6 +16,7 @@
 
 #include"point.h"
 #include"dbg.h"
+#include"defs.h"
 #include<stdlib.h>
 #include<string.h>
 
@@ -144,7 +145,7 @@ void pointPrintStd(Point *myPoint) {
  *      turns argument into null pointer
  */
 
-void pointDestroy(Point *myPoint) {
-    free(myPoint->id);
-    free(myPoint);
+void pointDestroy(Item myPoint) {
+    free( ((Point *) myPoint)->id );
+    free((Point *) myPoint);
 }

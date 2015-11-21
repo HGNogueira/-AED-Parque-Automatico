@@ -1,5 +1,6 @@
 #ifndef __point__h
 #define __point__h 1
+#include"defs.h"
 
 typedef struct _point Point;
 
@@ -13,6 +14,6 @@ char getDesc(Point *);
 
 void pointPrintStd(Point *);
 
-void pointDestroy(Point *);
+void pointDestroy(Item myPoint);
 
 #endif
