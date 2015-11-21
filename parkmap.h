@@ -116,8 +116,7 @@ void buildGraphs(Map *parkMap);
  *  void
  */
 
-void printCGraph(FILE *fp, Map *parkMap);
-void printPGraph(FILE *fp, Map *parkMap);
+void printGraph(FILE *fp, Map *parkMap);
 
 
 /*
