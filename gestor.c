@@ -23,6 +23,8 @@ int main(int argc, char* argv[]) {
     findPath(parkMap, entrance, access);
 
     mapDestroy(parkMap);
+    pointDestroy(entrance);
+    pointDestroy(access);
 
     return 0;
 }
