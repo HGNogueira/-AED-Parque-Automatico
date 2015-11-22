@@ -207,14 +207,14 @@ int *GLDijkstra(GraphL *G, int root, int dest) {
          */
         if(hP == dest)
             break;
-        if( wt[hP] != NOCON ) {
-            for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
-                e = getItemLinkedList(t);
-                if( wt[ e->w ] > wt[hP] + e->value) {
-                    wt[ e->w ] = wt[hP] + e->value;
-                    PQupdateIndex(PQ, e->w);
-                    st[e->w] = hP;
-                }
+        if( wt[hP] == NOCON)
+            break;
+        for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
+            e = getItemLinkedList(t);
+            if( wt[ e->w ] > wt[hP] + e->value) {
+                wt[ e->w ] = wt[hP] + e->value;
+                PQupdateIndex(PQ, e->w);
+                st[e->w] = hP;
             }
         }
     }

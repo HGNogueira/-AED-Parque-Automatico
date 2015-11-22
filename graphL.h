@@ -9,7 +9,7 @@
  * Warning! The client may want to change this value according to preference
  * in the application
  */
-#define NOCON -1
+#define NOCON 999999
 
 typedef struct _edge Edge;
 typedef struct _graphL GraphL;
