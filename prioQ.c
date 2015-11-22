@@ -79,9 +79,9 @@ int PQdelmin(PrioQ* PQ) {
     heap[0] = aux;
     index[ aux ] = 0;
 
+    PQ->N--;
     FixDown(PQ, 0);
 
-    PQ->N--;
 
     return heap[N - 1];
 }
@@ -130,7 +130,7 @@ void FixDown(PrioQ *PQ, int heapIndex) {
 
                     heap[i] = aux;
                     index[ aux ] = i;
-                    i = j;
+                    i = j + 1;
                     continue;
                 }
             }
@@ -192,8 +192,7 @@ void PQprintHeap(PrioQ* PQ) {
     int i = 0;
 
     for(i = 0; i < PQ->N; i++){
-        fprintf(stdout, "%d ", PQ->heap[i]);
-    fprintf(stdout, "\n");
+        fprintf(stdout, "%d %d\n", PQ->heap[i], PQ->wt[i]);
     }
     return;
 }
