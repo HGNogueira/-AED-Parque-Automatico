@@ -59,7 +59,7 @@ Point *newPoint(char *ID, char desc, int x, int y, int z) {
     myPoint = (Point*) malloc(sizeof(Point));
     check_mem(myPoint);
 
-    myPoint->id = ID;
+    myPoint->id = strdup(ID);
     myPoint->desc = desc;
     myPoint->x = x;
     myPoint->y = y;
