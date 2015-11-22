@@ -199,7 +199,7 @@ void PQprintHeap(PrioQ* PQ) {
 
 void PQdestroy(PrioQ* PQ){
     free(PQ->index);
-    free(PQ->wt);
     free(PQ->heap);
+    free(PQ);
     return;
 }
