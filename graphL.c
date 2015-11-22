@@ -199,8 +199,13 @@ int *GLDrijkstra(GraphL *G, int root, int dest) {
     wt[root] = 0;
     PQupdateIndex(PQ, root);
 
-    while(!PQempty(PQ)) {
+    while(!PQisempty(PQ)) {
         hP = PQdelmin(PQ);
+        /* if highest priority is our destiny
+         * we have found our ideal path
+         */
+        if(hP == dest)
+            break;
         if( wt[hP] != NOCON ) {
             for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
                 e = getItemLinkedList(t);
@@ -212,5 +217,7 @@ int *GLDrijkstra(GraphL *G, int root, int dest) {
             }
         }
     }
+    PQdestroy(PQ);
+
     return st;
 }
