@@ -10,7 +10,8 @@ int PQdelmin(PrioQ* PQ);
 
 void PQprintHeap(PrioQ* PQ);
 
-int PQempty();
+int PQisempty();
+void PQdestroy(PrioQ *PQ);
 
 
 #endif

@@ -83,7 +83,7 @@ int PQdelmin(PrioQ* PQ) {
     return heap[N - 1];
 }
 
-int PQempty(PrioQ *PQ){
+int PQisempty(PrioQ *PQ){
     return PQ->N <= 0 ? 1 : 0;
 }
     
@@ -188,5 +188,12 @@ void PQprintHeap(PrioQ* PQ) {
         fprintf(stdout, "%d ", PQ->heap[i]);
     fprintf(stdout, "\n");
     }
+    return;
+}
+
+void PQdestroy(PrioQ* PQ){
+    free(PQ->index);
+    free(PQ->wt);
+    free(PQ->heap);
     return;
 }
