@@ -19,7 +19,7 @@ PrioQ *PQinit(int *wt, int size){
     PQ = (PrioQ*) malloc(sizeof(PrioQ));
 
     PQ->size = size;
-    PQ->N = 0;
+    PQ->N = size;      /* initial heap size will be the same as his total size */
     PQ->wt = wt;       /* we shall be using the exact same pointer as given */
 
     PQ->heap = (int*) malloc(sizeof(int) * size);
@@ -61,10 +61,11 @@ int PQdelmin(PrioQ* PQ) {
     int aux;
     int N; 
 
+    N = PQ->N;
+
     if(N == 0)
         return -1;
 
-    N = PQ->N;
 
     /* switch places in table, and update index table */
     aux = heap[N - 1];
@@ -154,14 +155,13 @@ void FixDown(PrioQ *PQ, int heapIndex) {
 
 
 void FixUp(PrioQ *PQ, int heapIndex) {
-    int i, j, N;
+    int i, j;
     int *heap, *wt, *index;
     int aux;
 
     heap = PQ->heap;
     wt = PQ->wt;
-
-    N = PQ->N;
+    index = PQ->index;
 
     i = heapIndex;
     while(i > 0){
