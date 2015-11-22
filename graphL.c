@@ -164,15 +164,17 @@ int getValueEdge(Edge *e) {
  *    int indexed table st, delineating the path to take
  */
 
-int *GLDrijkstra(GraphL *g, int root, int dest) {
+int *GLDrijkstra(GraphL *G, int root, int dest) {
     int i; 
-    int v, w;
     int *st;             /* indexed table, saves the origin node */
     int *wt;             /* indexed table, saves length from tree */
     int N;
+    int hP;              /* to save highest priority index */
+    LinkedList *t;       /* to go through a linked list without modifying */
+    Edge *e;             /* to read adjL information contained in Edge * */
     PrioQ *PQ;
 
-    N = g->nodes;   /* get total number of nodes */
+    N = G->nodes;   /* get total number of nodes */
 
     /* initialize and write to indexed tables */
     st = (int*) malloc(sizeof(int) * N);
@@ -185,14 +187,30 @@ int *GLDrijkstra(GraphL *g, int root, int dest) {
         fprintf(stderr, "Memory error!\n");
     }
 
-    /* initialize new priority Queue */
-    PQ = NewPrioQ(N);
-
+    /* add values to indexed tables */
     for(i = 0; i < N; i++) {
-
-        
+        wt[i] = NOCON;    /* all weight values will be init as not connected */
         st[i] = -1;
-
-        Insert(heap, wt[i]);
     }
+
+    /* initialize new priority Queue */
+    PQ = PQinit(wt, N);
+
+    wt[root] = 0;
+    PQupdateIndex(PQ, root);
+
+    while(!PQempty(PQ)) {
+        hP = PQdelmin(PQ);
+        if( wt[hP] != NOCON ) {
+            for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
+                e = getItemLinkedList(t);
+                if( wt[ e->w ] > wt[hP] + e->value) {
+                    wt[ e->w ] = wt[hP] + e->value;
+                    PQupdateIndex(PQ, e->w);
+                    st[e->w] = hP;
+                }
+            }
+        }
+    }
+    return st;
 }
