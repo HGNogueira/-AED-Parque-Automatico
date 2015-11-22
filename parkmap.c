@@ -138,6 +138,7 @@ Map *mapInit(char *filename) {
                     auxString = strdup(ID);
                     ID[0] = '\0';
                     parkMap->entrancePoints[atE] = newPoint(auxString, desc, x, y, z);
+                    free(auxString);
                     atE++;
                     break;
                 case 'A':
@@ -146,6 +147,7 @@ Map *mapInit(char *filename) {
                     auxString = strdup(ID);
                     ID[0] = '\0';
                     parkMap->accessPoints[atA] = newPoint(auxString, desc, x, y, z);
+                    free(auxString);
                     atA++;
                     break;
             }
@@ -581,11 +583,31 @@ void printGraph(FILE *fp, Map *parkMap){
     return;
 }
 
-void findPath(Map *parkMap, Point *entrance, Point *access) {
+
+/*
+ *  Functions: 
+ *      findPath
+ *
+ *  Description:
+ *      finds a path between two points and returns total cost
+ *
+ *  Arguments:
+ *      Map *parkmap - map configuration
+ *      Point *entrance - entrance point
+ *      Point *access   - access point
+ *  Return value:
+ *      int
+ *
+ *  Secondary effects:
+ *      none
+ */
+
+int findPath(Map *parkMap, Point *entrance, Point *access) {
     int *st;
     int N, M, P;
     int origin, dest;
     int t;
+    int cost;
 
     N = parkMap->N;
     M = parkMap->M;
@@ -606,7 +628,7 @@ void findPath(Map *parkMap, Point *entrance, Point *access) {
                     getz(access), N, M, P)
                     + N * M * P;
 
-    st = GLDijkstra(parkMap->Graph, 
+    st = GLDijkstra(parkMap->Graph, &cost, 
                     origin,
                     dest);
     
@@ -618,7 +640,9 @@ void findPath(Map *parkMap, Point *entrance, Point *access) {
            break;
     }
 
-    return;
+    free(st);
+
+    return cost;
 }
     
 
@@ -642,9 +666,6 @@ void findPath(Map *parkMap, Point *entrance, Point *access) {
 void mapDestroy(Map *parkMap) {
     int i;
     int n, m;
-
-    if(parkMap->mapRep == NULL)
-        return;
     
     /* free special Points memory */
     for(i = 0; i < parkMap->S; i++)
