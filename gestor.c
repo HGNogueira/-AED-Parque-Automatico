@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
     mapPrintStd(parkMap);
 
     buildGraphs(parkMap);
-    printPGraph(stdout, parkMap);
+    printGraph(stdout, parkMap);
 
 
     mapDestroy(parkMap);
