@@ -164,7 +164,7 @@ int getValueEdge(Edge *e) {
  *    int indexed table st, delineating the path to take
  */
 
-int *GLDrijkstra(GraphL *G, int root, int dest) {
+int *GLDijkstra(GraphL *G, int root, int dest) {
     int i; 
     int *st;             /* indexed table, saves the origin node */
     int *wt;             /* indexed table, saves length from tree */
@@ -196,6 +196,7 @@ int *GLDrijkstra(GraphL *G, int root, int dest) {
     /* initialize new priority Queue */
     PQ = PQinit(wt, N);
 
+    st[root] = root;
     wt[root] = 0;
     PQupdateIndex(PQ, root);
 
@@ -217,6 +218,11 @@ int *GLDrijkstra(GraphL *G, int root, int dest) {
             }
         }
     }
+    if(st[dest] == -1) {
+        fprintf(stderr, "Couldn't get to destiny\n");
+        exit(1);
+    }
+
     PQdestroy(PQ);
 
     return st;
