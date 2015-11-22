@@ -42,16 +42,19 @@ void PQupdate(PrioQ *PQ){
 }
 
 void PQupdateIndex(PrioQ *PQ, int index){
+    int *heap = PQ->heap;
+    int *wt = PQ->wt;
+    int heapIndex = PQ->index[index];
     /* verify if index corresponds to heap's highest priority */
-    if(PQ->index[index] == 0)
+    if(heapIndex == 0)
         FixDown(PQ, 0);
     /* try to FixUp first */
-    else if(PQ->heap[index] < PQ->heap[(index - 1)/2]) {
-        FixUp(PQ, PQ->index[index]);
+    else if(wt[ heap[heapIndex] ] < wt[ heap[(heapIndex - 1)/2] ]) {
+        FixUp(PQ, heapIndex);
         return;
     }
     /* if we dont FixUp we can FixDown */
-    FixDown(PQ, PQ->index[index]);
+    FixDown(PQ, heapIndex);
     return;
 }
 
@@ -114,6 +117,7 @@ void FixDown(PrioQ *PQ, int heapIndex) {
 
                     heap[i] = aux;
                     index[ aux ] = i;
+                    i = j;
                     continue;
                 }
             }
@@ -126,6 +130,7 @@ void FixDown(PrioQ *PQ, int heapIndex) {
 
                     heap[i] = aux;
                     index[ aux ] = i;
+                    i = j;
                     continue;
                 }
             }
@@ -143,6 +148,7 @@ void FixDown(PrioQ *PQ, int heapIndex) {
 
                 heap[i] = aux;
                 index[ aux ] = i;
+                i = j;
                 continue;
             }
             /* if not we are done */
@@ -174,6 +180,7 @@ void FixUp(PrioQ *PQ, int heapIndex) {
 
             heap[i] = aux;
             index[ aux ] = i;
+            i = j;
             continue;
         }
         return;
