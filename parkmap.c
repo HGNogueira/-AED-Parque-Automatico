@@ -581,6 +581,48 @@ void printGraph(FILE *fp, Map *parkMap){
     return;
 }
 
+void findPath(Map *parkMap, Point *entrance, Point *access) {
+    int *st;
+    int N, M, P;
+    int origin, dest;
+    int t;
+
+    N = parkMap->N;
+    M = parkMap->M;
+    P = parkMap->P;
+
+    /* get the path table by calculating ideal path from
+     * entrance to access points
+     *
+     * entrance node is at index: x*M +N*m + N*M*p
+     * and
+     * access node is at index:   x*M +N*m + N*M*p + N*M*P
+     */
+    origin = toIndex(getx(entrance),
+                    gety(entrance),
+                    getz(entrance), N, M, P);
+    dest = toIndex(getx(access),
+                    gety(access),
+                    getz(access), N, M, P)
+                    + N * M * P;
+
+    st = GLDijkstra(parkMap->Graph, 
+                    origin,
+                    dest);
+    
+    t = dest;
+    while(1){
+       fprintf(stdout, "%d ", t);
+       t = st[t];
+       if(t == origin)
+           break;
+    }
+
+    return;
+}
+    
+
+
 
 /*
  *  Function:

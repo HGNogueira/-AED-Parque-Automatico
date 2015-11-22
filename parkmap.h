@@ -102,21 +102,41 @@ void buildGraphs(Map *parkMap);
 
 
 /*
- *  Functions:
- *    printCGraph
- *    printPGraph
+ *  Function:
+ *    printGraph
  *
  *  Description:
- *    prints the car path and peon path graphs previously generated respectively
+ *    prints the car and peon graphs previously generated respectively
  *
  *  Arguments:
  *    FILE *fp - stream to print out info
+ *    Map *parkMap - configuration map
  *
  *  Return value:
  *  void
  */
 
 void printGraph(FILE *fp, Map *parkMap);
+
+
+/*
+ *  Function:
+ *    findPath
+ *
+ *  Description:
+ *    finds the ideal path from an entrance point to an access point
+ *    in a given Map
+ *
+ *  Arguments:
+ *    Map *parkMap - contains the parking map configuration
+ *    Point *entrance - contains information about the origin node
+ *    Point *access - contains information about the destiny node
+ *
+ *  Return value:
+ *    void
+ */
+
+void findPath(Map *parkMap, Point *entrance, Point *access);
 
 
 /*
