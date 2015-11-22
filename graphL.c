@@ -164,10 +164,10 @@ int getValueEdge(Edge *e) {
  *    int indexed table st, delineating the path to take
  */
 
-int *GLDijkstra(GraphL *G, int root, int dest) {
+int *GLDijkstra(GraphL *G, int *cost, int root, int dest) {
     int i; 
-    int *st;             /* indexed table, saves the origin node */
     int *wt;             /* indexed table, saves length from tree */
+    int *st;
     int N;
     int hP;              /* to save highest priority index */
     LinkedList *t;       /* to go through a linked list without modifying */
@@ -224,6 +224,9 @@ int *GLDijkstra(GraphL *G, int root, int dest) {
     }
 
     PQdestroy(PQ);
+    *cost = wt[dest];
+
+    free(wt);
 
     return st;
 }

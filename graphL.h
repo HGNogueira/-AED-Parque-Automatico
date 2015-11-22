@@ -28,7 +28,7 @@ int getOrigNode(Edge *e);
 int getDestNode(Edge *e);
 int getValueEdge(Edge *e);
 
-int *GLDijkstra(GraphL *g, int root, int dest);
+int *GLDijkstra(GraphL *g, int *cost, int root, int dest);
 
 void freeEdge(Item e);
 void destroyGraph(GraphL *g);
