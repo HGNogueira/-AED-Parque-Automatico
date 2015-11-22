@@ -126,6 +126,7 @@ void printGraph(FILE *fp, Map *parkMap);
  *  Description:
  *    finds the ideal path from an entrance point to an access point
  *    in a given Map
+ *    returns the total cost of the path
  *
  *  Arguments:
  *    Map *parkMap - contains the parking map configuration
@@ -133,10 +134,10 @@ void printGraph(FILE *fp, Map *parkMap);
  *    Point *access - contains information about the destiny node
  *
  *  Return value:
- *    void
+ *    int
  */
 
-void findPath(Map *parkMap, Point *entrance, Point *access);
+int findPath(Map *parkMap, Point *entrance, Point *access);
 
 
 /*
