@@ -34,7 +34,7 @@
      * B - num of rows 
      * C - num of floors
      */
-#define toIndex(a,b,c,A,B,C) a + A*(b) + A*B*c 
+#define toIndex(a,b,c,A,B,C) a + (A)*(b) + (A)*(B)*(c) 
 
 
 /*
@@ -204,7 +204,7 @@ void buildGraphs(Map *parkMap) {
      * it is easy to see that the only way to pass from one situation to the 
      * other is by going over a '.' point
      */
-    Graph = graphInit(N * M * P * 2);
+    Graph = Ginit(N * M * P * 2);
 
     /* initialize ramps table in parkMap */
     parkMap->ramps = (LinkedList**) malloc(sizeof(LinkedList*) * P);
@@ -244,7 +244,7 @@ void buildGraphs(Map *parkMap) {
                                                 (Item) auxRamp);
 
                         /* connect car path with upper floor */
-                        insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                        GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p + 1,N,M,P), 1);
 
                         /* check for possibility of edge with neighbours */
@@ -264,25 +264,25 @@ void buildGraphs(Map *parkMap) {
 
                         /* LEFT */
                         if( strchr("@exa", (int) LEFT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n-1,m,p,N,M,P), 1);
                         } 
 
                         /* RIGHT */
                         if( strchr("@exa", (int) RIGHT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n+1,m,p,N,M,P), 1);
                         } 
 
                         /* TOP */
                         if( strchr("@exa", (int) TOP) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m+1,p,N,M,P), 1);
                         } 
 
                         /* BOTTOM */
                         if( strchr("@exa", (int) BOTTOM) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m-1,p,N,M,P), 1);
                         } 
                         break;
@@ -294,7 +294,7 @@ void buildGraphs(Map *parkMap) {
                                                 (Item) auxRamp);
 
                         /* connect car path with lower floor */
-                        insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                        GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p - 1,N,M,P), 1);
 
                         /* check for possibility of edge with neighbours */
@@ -314,25 +314,25 @@ void buildGraphs(Map *parkMap) {
 
                         /* LEFT */
                         if( strchr("@exa", (int) LEFT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n-1,m,p,N,M,P), 1);
                         } 
 
                         /* RIGHT */
                         if( strchr("@exa", (int) RIGHT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n+1,m,p,N,M,P), 1);
                         } 
 
                         /* TOP */
                         if( strchr("@exa", (int) TOP) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m+1,p,N,M,P), 1);
                         } 
 
                         /* BOTTOM */
                         if( strchr("@exa", (int) BOTTOM) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m-1,p,N,M,P), 1);
                         } 
                         break;
@@ -356,45 +356,45 @@ void buildGraphs(Map *parkMap) {
 
                         /* LEFT */
                         if( strchr("@exa", (int) LEFT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n-1,m,p,N,M,P), 1);
                         }
                         /*insert in peon path by adding N*M*P to index */
                         if( strchr("@xei.ud", (int) LEFT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                         }
 
                         /* RIGHT */
                         if( strchr("@exa", (int) RIGHT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n+1,m,p,N,M,P), 1);
                         } 
                         /*insert in peon path by adding N*M*P to index */
                         if( strchr("@xei.ud", (int) RIGHT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n+1,m,p,N,M,P) + N*M*P , 3);
                         }
 
                         /* TOP */
                         if( strchr("@exa", (int) TOP) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m+1,p,N,M,P), 1);
                         } 
                         /*insert in peon path by adding N*M*P to index */
                         if( strchr("@xei.ud", (int) TOP) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                         }
 
                         /* BOTTOM */
                         if( strchr("@exa", (int) BOTTOM) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m-1,p,N,M,P), 1);
                         } 
                         /*insert in peon path by adding N*M*P to index */
                         if( strchr("@xei.ud", (int) BOTTOM) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                         }
                         break;
@@ -414,25 +414,25 @@ void buildGraphs(Map *parkMap) {
 
                         /* LEFT */
                         if( strchr("@xei.ud", (int) LEFT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                         }
 
                         /* RIGHT */
                         if( strchr("@xei.ud", (int) RIGHT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
                         }
 
                         /* TOP */
                         if( strchr("@xei.ud", (int) TOP) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                         }
 
                         /* BOTTOM */
                         if( strchr("@xei.ud", (int) BOTTOM) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                         }
 
@@ -444,25 +444,25 @@ void buildGraphs(Map *parkMap) {
                          */
                         /* LEFT */
                         if( strchr("@xei.ud", (int) LEFT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p,N,M,P) + N*M*P, 0);
                         }
 
                         /* RIGHT */
                         if( strchr("@xei.ud", (int) RIGHT) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p,N,M,P) + N*M*P, 0);
                         }
 
                         /* TOP */
                         if( strchr("@xei.ud", (int) TOP) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p,N,M,P) + N*M*P, 0);
                         }
 
                         /* BOTTOM */
                         if( strchr("@xei.ud", (int) BOTTOM) == NULL){
-                            insertEdge(Graph, toIndex(n,m,p,N,M,P),
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p,N,M,P) + N*M*P, 0);
 
                         }
@@ -480,16 +480,16 @@ void buildGraphs(Map *parkMap) {
         z = getz(parkMap->entrancePoints[i]);
 
         if(x == 0) /* at the left wall, add path to the right of the entrance */
-            insertEdge(Graph, toIndex(x,y,z,N,M,P),
+            GinsertEdge(Graph, toIndex(x,y,z,N,M,P),
                         toIndex(x+1,y,z,N,M,P), 1);
         if(x == parkMap->N - 1)                 /* at the right wall ... */
-            insertEdge(Graph, toIndex(x,y,z,N,M,P),
+            GinsertEdge(Graph, toIndex(x,y,z,N,M,P),
                         toIndex(x-1,y,z,N,M,P), 1);
         if(y == parkMap->M - 1)                 /* at the Top wall */
-            insertEdge(Graph, toIndex(x,y,z,N,M,P),
+            GinsertEdge(Graph, toIndex(x,y,z,N,M,P),
                         toIndex(x,y-1,z,N,M,P), 1);
         if(y == 0)                              /* at the bottom wall */
-            insertEdge(Graph, toIndex(x,y,z,N,M,P),
+            GinsertEdge(Graph, toIndex(x,y,z,N,M,P),
                         toIndex(x,y+1,z,N,M,P), 1);
     }
 
@@ -565,7 +565,7 @@ void printGraph(FILE *fp, Map *parkMap){
     int i = 0;
     LinkedList *auxLink;
     Point *auxPoint;
-    GprintToFile(fp, parkMap->Graph);
+    Gprint(fp, parkMap->Graph);
 
     for(i = 0; i < parkMap->P; i++) {
         auxLink = parkMap->ramps[i];
@@ -581,6 +581,50 @@ void printGraph(FILE *fp, Map *parkMap){
     }
 
     return;
+}
+
+
+/*
+ *  Functions: 
+ *      getAccessPoints
+ *
+ *  Description:
+ *      returns table of access points encountered in a Map configuration 
+ *      with a certain description
+ *
+ *  Arguments:
+ *      Map *parkmap - map configuration
+ *      char desc    - descriptive character of access point type
+ *      int *size    - reference to external variable with table size
+ *  Return value:
+ *      Point ** - Point * table
+ *
+ *  Secondary effects:
+ *      none
+ */
+
+Point **getAccessPoints(Map *parkMap, char desc, int *size){
+    Point **pointTable;
+    int i;
+
+    *size = 0;
+
+    for(i = 0; i < parkMap->S; i++)
+        if( getDesc(parkMap->accessPoints[i]) == desc )
+            (*size)++;
+
+    pointTable = (Point**) malloc(sizeof(Point *));
+
+    for(i = 0; i < *size; i++) {
+        if( getDesc(parkMap->accessPoints[i]) == desc){
+            pointTable[i] = newPoint(getID(parkMap->accessPoints[i]),
+                                    desc, getx(parkMap->accessPoints[i]),
+                                    gety(parkMap->accessPoints[i]),
+                                    getz(parkMap->accessPoints[i]));
+        }
+    }
+    
+    return pointTable;
 }
 
 
@@ -606,7 +650,6 @@ int findPath(Map *parkMap, Point *entrance, Point *access) {
     int *st;
     int N, M, P;
     int origin, dest;
-    int t;
     int cost;
 
     N = parkMap->N;
@@ -628,17 +671,9 @@ int findPath(Map *parkMap, Point *entrance, Point *access) {
                     getz(access), N, M, P)
                     + N * M * P;
 
-    st = GLDijkstra(parkMap->Graph, &cost, 
+    st = GDijkstra(parkMap->Graph, &cost, 
                     origin,
                     dest);
-    
-    t = dest;
-    while(1){
-       fprintf(stdout, "%d ", t);
-       t = st[t];
-       if(t == origin)
-           break;
-    }
 
     free(st);
 
@@ -689,7 +724,7 @@ void mapDestroy(Map *parkMap) {
     free(parkMap->ramps);
 
     if(parkMap->Graph)
-        destroyGraph(parkMap->Graph);
+        Gdestroy(parkMap->Graph);
 
     free(parkMap);
 }

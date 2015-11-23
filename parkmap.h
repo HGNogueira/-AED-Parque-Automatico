@@ -68,23 +68,6 @@ Map *mapInit(char *filename);
 
 /*
  *  Function:
- *    mapPrintStd 
- *
- *  Description: 
- *    prints map configuration information to stdout
- *
- *  Arguments:
- *    pointer to map structure to print
- *
- *  Return value:
- *    void
- */
-
-void mapPrintStd(Map *parkMap);
-
-
-/*
- *  Function:
  *    buildGraphs
  *
  *  Description: 
@@ -103,6 +86,23 @@ void buildGraphs(Map *parkMap);
 
 /*
  *  Function:
+ *    mapPrintStd 
+ *
+ *  Description: 
+ *    prints map configuration information to stdout
+ *
+ *  Arguments:
+ *    pointer to map structure to print
+ *
+ *  Return value:
+ *    void
+ */
+
+void mapPrintStd(Map *parkMap);
+
+
+/*
+ *  Function:
  *    printGraph
  *
  *  Description:
@@ -117,6 +117,44 @@ void buildGraphs(Map *parkMap);
  */
 
 void printGraph(FILE *fp, Map *parkMap);
+
+
+/*
+ *  Function:
+ *    getAccessPoints
+ *
+ *  Description:
+ *    returns table with access points of a certain description
+ *
+ *  Arguments:
+ *    Map *parkMap - configuration map
+ *    char desc - descriptive character of desired type of access
+ *    int *size - reference to a size variable, will save table size
+ *
+ *  Return value:
+ *    Point * - table of access points
+ */
+
+char getMapRepDesc(Map *parkMap, int x, int y, int z);
+
+
+/*
+ *  Function:
+ *    getAccessPoints
+ *
+ *  Description:
+ *    returns table with access points of a certain description
+ *
+ *  Arguments:
+ *    Map *parkMap - configuration map
+ *    char desc - descriptive character of desired type of access
+ *    int *size - reference to a size variable, will save table size
+ *
+ *  Return value:
+ *    Point * - table of access points
+ */
+
+Point **getAccessPoints(Map *parkMap, char desc, int *size);
 
 
 /*
