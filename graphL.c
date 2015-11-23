@@ -22,7 +22,7 @@ void freeEdge(Item e) {
 }
 
 
-GraphL *graphInit(int nodes) {
+GraphL *Ginit(int nodes) {
     int i = 0;
     GraphL *g;
 
@@ -47,7 +47,7 @@ GraphL *graphInit(int nodes) {
     return g;
 }
 
-void GprintToFile(FILE *fp, GraphL *g) {
+void Gprint(FILE *fp, GraphL *g) {
     int i = 0;
     LinkedList *aux;
     Edge *e;
@@ -65,7 +65,7 @@ void GprintToFile(FILE *fp, GraphL *g) {
 }
 
 
-void insertEdge(GraphL *g, int v, int w, int value){
+void GinsertEdge(GraphL *g, int v, int w, int value){
     Edge *e;
     e = (Edge *) malloc(sizeof(Edge));
 
@@ -78,7 +78,7 @@ void insertEdge(GraphL *g, int v, int w, int value){
     return;
 }
 
-void deleteEdge(GraphL *g, int v, int w){
+void GdeleteEdge(GraphL *g, int v, int w){
     Edge *e;
     LinkedList *aux;
     
@@ -102,7 +102,7 @@ void deleteEdge(GraphL *g, int v, int w){
     return;
 }
 
-void destroyGraph(GraphL *g) {
+void Gdestroy(GraphL *g) {
     int i = 0;
     
     for(i = 0; i < g->nodes; i++)
@@ -112,11 +112,11 @@ void destroyGraph(GraphL *g) {
     free(g);
 }
 
-int getNodes(GraphL *g){
+int Gnodes(GraphL *g){
     return g->nodes;
 }
 
-LinkedList *getEdgesOfNode(GraphL *g, int v) {
+LinkedList *GedgesOfNode(GraphL *g, int v) {
     LinkedList *aux = g->adjL[v];
     LinkedList *edges;
     Edge *eAux, *e;
@@ -136,15 +136,15 @@ LinkedList *getEdgesOfNode(GraphL *g, int v) {
     return edges;
 }
 
-int getOrigNode(Edge *e) {
+int GorigOfEdge(Edge *e) {
     return e->v;
 }
 
-int getDestNode(Edge *e) {
+int GdestOfEdge(Edge *e) {
     return e->w;
 }
 
-int getValueEdge(Edge *e) {
+int GvalOfEdge(Edge *e) {
     return e->value;
 }
 
@@ -164,7 +164,7 @@ int getValueEdge(Edge *e) {
  *    int indexed table st, delineating the path to take
  */
 
-int *GLDijkstra(GraphL *G, int *cost, int root, int dest) {
+int *GDijkstra(GraphL *G, int *cost, int root, int dest) {
     int i; 
     int *wt;             /* indexed table, saves length from tree */
     int *st;

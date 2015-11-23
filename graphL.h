@@ -14,23 +14,23 @@
 typedef struct _edge Edge;
 typedef struct _graphL GraphL;
 
-GraphL *graphInit(int nodes);
+GraphL *Ginit(int nodes);
 
-void insertEdge(GraphL *g, int v, int w, int value);
-void deleteEdge(GraphL *g, int v, int w);
+void GinsertEdge(GraphL *g, int v, int w, int value);
+void GdeleteEdge(GraphL *g, int v, int w);
 
-void GprintToFile(FILE *fp,GraphL *g);
+void Gprint(FILE *fp,GraphL *g);
 
-LinkedList *getEdgesOfNode(GraphL *, int);
+LinkedList *GedgesOfNode(GraphL *, int);
 
-int getNodes(GraphL *g);
-int getOrigNode(Edge *e);
-int getDestNode(Edge *e);
-int getValueEdge(Edge *e);
+int Gnodes(GraphL *g);
+int GorigOfEdge(Edge *e);
+int GdestOfEdge(Edge *e);
+int GvalOfEdge(Edge *e);
 
-int *GLDijkstra(GraphL *g, int *cost, int root, int dest);
+int *GDijkstra(GraphL *g, int *cost, int root, int dest);
 
-void freeEdge(Item e);
-void destroyGraph(GraphL *g);
+void GfreeEdge(Item e);
+void Gdestroy(GraphL *g);
 
 #endif
