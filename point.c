@@ -85,13 +85,8 @@ Point *newPoint(char *ID, char desc, int x, int y, int z) {
  *      None
  */
 
-int getID(Point *myPoint, char *toDup) {
-    toDup = strdup(myPoint->id);
-    if(toDup == NULL){
-        fprintf(stderr, "Memory error: couldn't copy ID\n");
-        return 1;
-    }
-    return 0;
+char *getID(Point *myPoint) {
+    return myPoint->id;
 }
 
 int getx(Point *myPoint){
