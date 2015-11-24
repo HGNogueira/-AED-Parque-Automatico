@@ -647,10 +647,12 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size){
  */
 
 int findPath(Map *parkMap, Point *entrance, Point *access) {
-    int *st;
-    int N, M, P;
-    int origin, dest;
-    int cost;
+    int N, M, P;      /* easy access variables */
+    int origin, dest; /* origin and destiny indexed variables */
+    int cost;         /* cost of total path */
+    int *st, *wt;     /* path and weight tables */
+    PrioQ *PQ;        /* priority queue */
+    int i;     
 
     N = parkMap->N;
     M = parkMap->M;
@@ -671,17 +673,43 @@ int findPath(Map *parkMap, Point *entrance, Point *access) {
                     getz(access), N, M, P)
                     + N * M * P;
 
-    st = GDijkstra(parkMap->Graph, &cost, 
-                    origin,
-                    dest);
+
+    /* pre-Initialize weight and path tables, posterior function requirement */
+    st = (int*) malloc(sizeof(int) * Gnodes(parkMap->Graph));
+    wt = (int*) malloc(sizeof(int) * Gnodes(parkMap->Graph));
+
+    /* load desired values onto tables */
+    for(i = 0; i < Gnodes(parkMap->Graph); i++) {
+        st[i] = -1;
+        wt[i] = NOCON;
+    }
+
+    /* initialize priority queue, posterior function requirement */
+    PQ = PQinit(wt, Gnodes(parkMap->Graph));
+
+    /* set origin definitions and update PQ */
+    st[origin] = -1;
+    wt[origin] = 0;
+    PQupdateIndex(PQ, origin);
+
+
+    /* calculate Ideal path and get total cost */
+    cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ);
+
+    i = dest;
+    while(st[i] != -1) {
+        fprintf(stdout, "%d ", st[i]);
+        i = st[i];
+    }
+    fprintf(stdout, "\n");
 
     free(st);
+    free(wt);
+    PQdestroy(PQ);
 
     return cost;
 }
     
-
-
 
 /*
  *  Function:
