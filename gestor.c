@@ -22,6 +22,9 @@ int main(int argc, char* argv[]) {
 
     findPath(parkMap, argv[2], argv[3][0]);
 
+    if(argc == 5)
+        loadRestrictions(parkMap, argv[4]);
+
     mapDestroy(parkMap);
 
     return 0;
