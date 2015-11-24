@@ -24,6 +24,7 @@
 #include<stdlib.h>
 #include<string.h>
 
+
 #define SIZE 256
 #define CHARSIZE 256
     /* toIndex - macro to convert coordinates into an 1 dimensional index
@@ -36,6 +37,25 @@
      * C - num of floors
      */
 #define toIndex(a,b,c,A,B,C) a + (A)*(b) + (A)*(B)*(c) 
+
+
+/*
+ *  Internal Data Type: Restriction
+ *
+ *  Description: 
+ *      Characterizes a certain restriction given by the client, this can be 
+ *  applied on a whole floor or just a certain coordinate
+ *
+ */
+
+typedef struct _restriction{
+    int ta;
+    int tb;
+    int floor;             /* indicates restricted floor, -1 if not applied */
+    int x, y, z;           /* restricted coordinates, uninitialized if 
+                            * not applied */
+
+} Restriction;
 
 
 /*
@@ -63,6 +83,9 @@ struct _map{
 
     LinkedList **ramps; /* table to save ramp Points, index corresponds
                            to the floor */
+
+    int R;              /* number of restrictions */
+    Restriction **rcts; /* table of Restriction pointers, appliccable if needed*/
 
     GraphL *Graph; /* car and pedestrian graph */
 };
@@ -189,6 +212,9 @@ Map *mapInit(char *filename) {
         skipLine[0] = '\0';
     }
 
+
+    parkMap->R = 0;                 /* initialize parkMap restrictions to 
+                                       non-existent */
 
     fclose(fp);
 
@@ -781,7 +807,90 @@ int findPath(Map *parkMap, char *entranceID, char accessType) {
 
     return cost;
 }
-    
+
+
+ /*
+ *  Function:
+ *      loadRestrictions
+ *  Description:
+ *      loads Resctriction vector of Map structure with all restrictions as per
+ *      indicated in the file
+ *
+ *  Arguments:
+ *      Pointer to struct Map
+ *      char *filename - name of the restriction input file
+ *  Return value:
+ *      none
+ *
+ *  Secondary effects:
+ *      the pointer sent in becomes NULL
+ */
+
+void loadRestrictions(Map *parkMap, char *filename) {
+    FILE *fp;
+    Restriction **rcts;
+    int i;             
+    int floor, x, y, z, ta, tb; /* restriction parameters */
+    char rc;
+    char buffer[SIZE];          /* dummy string */
+    int inpRead;
+    int numRes = 0;
+
+    fp = fopen(filename, "r");
+    if(fp == NULL){
+        fprintf(stderr, "Couldn't open restrictions file %s\n", filename);
+        exit(1);
+    }
+
+    /* counting number of lines || counting number of restrictions */
+    for(numRes = 0; fgets(buffer, SIZE, fp); numRes++)
+        if(buffer[0] != 'R')
+            break;
+    rewind(fp);                          /* return to beggining of file */
+
+    if(numRes == 0)
+        return;
+
+    rcts = (Restriction **) malloc(sizeof(Restriction) * numRes);
+
+    for(i = 0; i < numRes; i++) {
+        inpRead = fscanf(fp, "%c %d %d %d %d %d\n", &rc, &ta, &tb, &x, &y, &z);
+        if(inpRead == 6){
+            rcts[i] = (Restriction *) malloc(sizeof(Restriction));
+            rcts[i]->floor = -1;
+            rcts[i]->x = x;
+            rcts[i]->y = y;
+            rcts[i]->z = z;
+            rcts[i]->ta = ta;
+            rcts[i]->tb = tb;
+        }
+        else if(inpRead == 4){
+            floor = x;         /* variable x holds floor number */
+            rcts[i] = (Restriction *) malloc(sizeof(Restriction));
+            rcts[i]->floor = floor; 
+            rcts[i]->ta = ta;
+            rcts[i]->tb = tb;
+            /* coordinates will remain uninitialized */
+        }
+        else{
+            fprintf(stderr, "Can't process this restriction file\n");
+            exit(1);
+        }
+    }
+    for(i = 0; i < numRes; i++){
+        if(rcts[i]->floor == -1)
+            fprintf(stdout, "R %d %d %d %d %d\n", rcts[i]->ta, rcts[i]->tb,
+                                        rcts[i]->x, rcts[i]->y, rcts[i]->z);
+        else
+            fprintf(stdout, "R %d %d %d\n", rcts[i]->ta, rcts[i]->tb,
+                                          rcts[i]->floor);
+    }
+    fclose(fp);
+
+    parkMap->R = numRes;
+    parkMap->rcts = rcts;
+}
+
 
 /*
  *  Function:
@@ -828,6 +937,12 @@ void mapDestroy(Map *parkMap) {
 
     freeLinkedList(parkMap->accessTypes, free);
     free(parkMap->accessTable);
+
+    if(parkMap->R > 0){
+        for(i = 0; i < parkMap->R; i++)
+            free(parkMap->rcts[i]);
+        free(parkMap->rcts);
+    }
 
     free(parkMap);
 }

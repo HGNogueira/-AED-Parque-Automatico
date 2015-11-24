@@ -179,6 +179,23 @@ int findPath(Map *parkMap, char *entranceID, char accessType);
 
 
 /*
+ *  Function:
+ *    loadRestrictions
+ *
+ *  Description:
+ *    loads restriction into Restriction vector of Map structure
+ *
+ *  Arguments:
+ *    Map *parkMap - contains the parking map configuration
+ *    char *restrictionFile - restriction type file with all restrictions
+ *
+ *  Return value:
+ *    int
+ */
+
+void loadRestrictions(Map *parkMap, char *restrictionFile);
+
+/*
  *  Functions:
  *    mapDestroy
  *
