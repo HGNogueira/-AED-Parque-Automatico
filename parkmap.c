@@ -25,6 +25,7 @@
 #include<string.h>
 
 #define SIZE 256
+#define CHARSIZE 256
     /* toIndex - macro to convert coordinates into an 1 dimensional index
      *
      * a - column
@@ -50,10 +51,15 @@ struct _map{
     int N, M; /* floor dimensions NxM */
     int P;    /* num of floors */
     int E, S; /* num of entrances (E) and peon access points (S) */
+    int difS; /* num of different type of peon access points */
 
     char ***mapRep; /* table of matrices to represent multiple floor map */
     Point **accessPoints; /* table of map access points */
     Point **entrancePoints; /* table of map entrance points */
+
+    int *accessTable; /* lookup table for accesspoints descriptors */
+    LinkedList *accessTypes;  /* lookup table with acccess Type descriptors
+                                 to save some sort of order */
 
     LinkedList **ramps; /* table to save ramp Points, index corresponds
                            to the floor */
@@ -82,11 +88,11 @@ struct _map{
 Map *mapInit(char *filename) {
     FILE *fp;
     Map *parkMap; 
-    int n, m, p;                             /* iteration variables */
-    char auxChar, desc;                      /* auxiliary chars */
+    int n, m, p, i;                               /* iteration variables */
+    char auxChar, desc, *auxPChar;             /* auxiliary chars */
     char ID[SIZE], *auxString, skipLine[SIZE]; /* auxiliary strings */
-    int x, y, z;                             /* point coordinate values */
-    int atE = 0, atA = 0;                    /* control variables for access 
+    int x, y, z;                               /* point coordinate values */
+    int atE = 0, atA = 0;                      /* control variables for access 
                                                 and entrance tables */
 
     parkMap = (Map*) malloc(sizeof(Map));
@@ -97,6 +103,9 @@ Map *mapInit(char *filename) {
 
     fscanf(fp, "%d %d %d %d %d", &parkMap->N, &parkMap->M, &parkMap->P,
                 &parkMap->E, &parkMap->S);
+
+    /* initialize number of diferent types to zero */
+    parkMap->difS = 0;
 
     fgets(skipLine, SIZE, fp); /* make file stream point to next line) */
     skipLine[0] = '\0';
@@ -117,6 +126,17 @@ Map *mapInit(char *filename) {
     parkMap->accessPoints = (Point**) malloc(sizeof(Point*) * parkMap->S);
     parkMap->entrancePoints = (Point**) malloc(sizeof(Point*) * parkMap->E);
 
+    /* initialize auxiliar accessPoint variables
+     * accessTable has size CHARSIZE for it must be able to house any index
+     * in (int) char
+     * 
+     * it is initialized to -1 to check if it has been accessed (usefull further
+     * down when trying to figure out number of diferent types)
+     */
+    parkMap->accessTable = (int *) malloc(sizeof(int) * CHARSIZE);
+    for(i = 0; i < CHARSIZE; i++)
+        parkMap->accessTable[i] = -1;
+    parkMap->accessTypes = initLinkedList();
     /* start reading rest of file */
     for(p = 0; p < parkMap->P; p++) {
         /* read first m lines starting from beggining of floor contruction */
@@ -148,6 +168,18 @@ Map *mapInit(char *filename) {
                     ID[0] = '\0';
                     parkMap->accessPoints[atA] = newPoint(auxString, desc, x, y, z);
                     free(auxString);
+
+                    /* check if first time in Lookup table */
+                    if(parkMap->accessTable[ (int) desc ] == -1) {
+                        parkMap->difS++;
+                        auxPChar = (char *) malloc(sizeof(char));
+                        *auxPChar= desc;
+                        parkMap->accessTypes =  insertUnsortedLinkedList(
+                                                parkMap->accessTypes,
+                                                (Item) auxPChar);
+                        parkMap->accessTable[ (int) desc ] = 0;
+                    }
+
                     atA++;
                     break;
             }
@@ -156,6 +188,7 @@ Map *mapInit(char *filename) {
         fgets(skipLine, SIZE, fp); /* make file stream point to next line) */
         skipLine[0] = '\0';
     }
+
 
     fclose(fp);
 
@@ -182,8 +215,11 @@ void buildGraphs(Map *parkMap) {
     int n, m, p, i;    /* iteration variables */
     int N, M ,P;
     int x, y, z;       /* point coordinates */
-    Point *auxRamp;
+    Point *auxRamp, *auxAccess;
     GraphL *Graph; /* adjacency list graphs */
+    char* auxPChar;
+    int gSize;
+    LinkedList *t;
 
     N = parkMap->N;
     M = parkMap->M;
@@ -203,8 +239,20 @@ void buildGraphs(Map *parkMap) {
      *
      * it is easy to see that the only way to pass from one situation to the 
      * other is by going over a '.' point
+     *
+     * --------------------------
+     *
+     *  Last parkMap->difS spots are specially reserved for access point types
      */
-    Graph = Ginit(N * M * P * 2);
+    gSize = N * M * P * 2 + parkMap->difS;
+    Graph = Ginit(gSize);
+
+    /* load values into parkMap->accessTable */
+    t = parkMap->accessTypes;
+    for(i = gSize - parkMap->difS; i < gSize; i++) {
+        auxPChar = (char*) getItemLinkedList(t);
+        parkMap->accessTable[(int) *auxPChar] = i;
+    }
 
     /* initialize ramps table in parkMap */
     parkMap->ramps = (LinkedList**) malloc(sizeof(LinkedList*) * P);
@@ -223,7 +271,6 @@ void buildGraphs(Map *parkMap) {
      */
 
     /* useful macros to get neighbour chars */
-    #define CENTER parkMap->mapRep[n][m][p]
     #define LEFT parkMap->mapRep[n-1][m][p]
     #define RIGHT parkMap->mapRep[n+1][m][p]
     #define TOP parkMap->mapRep[n][m+1][p]
@@ -493,8 +540,26 @@ void buildGraphs(Map *parkMap) {
                         toIndex(x,y+1,z,N,M,P), 1);
     }
 
+    /* connect each of the access points to the its special type node */
+    for(i = 0; i < parkMap->S; i++) {
+        auxAccess = parkMap->accessPoints[i];
+        /* inserting edge on node correspondent to the access point 
+         * towards the general type node as given per parkMap->accessTable
+         * lookup table
+         * */
+        GinsertEdge(Graph,
+                    toIndex(getx(auxAccess), gety(auxAccess), getz(auxAccess),
+                        N, M, P) + N * M * P,
+                    parkMap->accessTable[(int) getDesc(auxAccess) ], 0);
+    }
+
 
     parkMap->Graph = Graph;
+
+    #undef LEFT
+    #undef RIGHT
+    #undef BOTTOM
+    #undef TOP
 
     return;
 }
@@ -646,17 +711,12 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size){
  *      none
  */
 
-int findPath(Map *parkMap, Point *entrance, Point *access) {
-    int N, M, P;      /* easy access variables */
+int findPath(Map *parkMap, Point *entrance, char accessType) {
     int origin, dest; /* origin and destiny indexed variables */
     int cost;         /* cost of total path */
     int *st, *wt;     /* path and weight tables */
     PrioQ *PQ;        /* priority queue */
     int i;     
-
-    N = parkMap->N;
-    M = parkMap->M;
-    P = parkMap->P;
 
     /* get the path table by calculating ideal path from
      * entrance to access points
@@ -667,11 +727,8 @@ int findPath(Map *parkMap, Point *entrance, Point *access) {
      */
     origin = toIndex(getx(entrance),
                     gety(entrance),
-                    getz(entrance), N, M, P);
-    dest = toIndex(getx(access),
-                    gety(access),
-                    getz(access), N, M, P)
-                    + N * M * P;
+                    getz(entrance), parkMap->N, parkMap->M, parkMap->P);
+    dest = parkMap->accessTable[(int) accessType];
 
 
     /* pre-Initialize weight and path tables, posterior function requirement */
@@ -753,6 +810,9 @@ void mapDestroy(Map *parkMap) {
 
     if(parkMap->Graph)
         Gdestroy(parkMap->Graph);
+
+    freeLinkedList(parkMap->accessTypes, free);
+    free(parkMap->accessTable);
 
     free(parkMap);
 }
