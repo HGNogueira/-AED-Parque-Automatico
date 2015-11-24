@@ -154,60 +154,32 @@ int GvalOfEdge(Edge *e) {
  *
  *  Description:
  *    uses the Dijkstra algorithm to generate the shortest path tree starting
- *    at the designated root
+ *    at the designated root towards the destiny root
  *    Will stop once the toFind node is reached
  *
  *  Arguments:
  *    GraphL *g - graph to compute
+ *    int root - tree's origin
+ *    int dest - destiny node, the node you want to get to
+ *    int *st - pre-Initialized path table
+ *    int *wt - pre-Initialized weight table
+ *    PrioQ *PQ - pre-Initialized priority queue
  *
  *  Return value:
  *    int indexed table st, delineating the path to take
  */
 
-int *GDijkstra(GraphL *G, int *cost, int root, int dest) {
-    int i; 
-    int *wt;             /* indexed table, saves length from tree */
-    int *st;
-    int N;
+int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ) {
     int hP;              /* to save highest priority index */
     LinkedList *t;       /* to go through a linked list without modifying */
     Edge *e;             /* to read adjL information contained in Edge * */
-    PrioQ *PQ;
-
-    N = G->nodes;   /* get total number of nodes */
-
-    /* initialize and write to indexed tables */
-    st = (int*) malloc(sizeof(int) * N);
-    if(st == NULL) {
-        fprintf(stderr, "Memory error!\n");
-    }
-    
-    wt = (int*) malloc(sizeof(int) * N);
-    if(wt == NULL) {
-        fprintf(stderr, "Memory error!\n");
-    }
-
-    /* add values to indexed tables */
-    for(i = 0; i < N; i++) {
-        wt[i] = NOCON;    /* all weight values will be init as not connected */
-        st[i] = -1;
-    }
-
-    /* initialize new priority Queue */
-    PQ = PQinit(wt, N);
-
-    st[root] = root;
-    wt[root] = 0;
-    PQupdateIndex(PQ, root);
 
     while(!PQisempty(PQ)) {
         hP = PQdelmin(PQ);
         /* if highest priority is our destiny
          * we have found our ideal path
          */
-        if(hP == dest)
-            break;
-        if( wt[hP] == NOCON)
+        if(hP == dest || wt[hP] == NOCON)
             break;
         for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
             e = getItemLinkedList(t);
@@ -218,15 +190,5 @@ int *GDijkstra(GraphL *G, int *cost, int root, int dest) {
             }
         }
     }
-    if(st[dest] == -1) {
-        fprintf(stderr, "Couldn't get to destiny\n");
-        exit(1);
-    }
-
-    PQdestroy(PQ);
-    *cost = wt[dest];
-
-    free(wt);
-
-    return st;
+    return wt[dest];
 }
