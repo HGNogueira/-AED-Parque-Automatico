@@ -711,12 +711,27 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size){
  *      none
  */
 
-int findPath(Map *parkMap, Point *entrance, char accessType) {
+int findPath(Map *parkMap, char *entranceID, char accessType) {
     int origin, dest; /* origin and destiny indexed variables */
     int cost;         /* cost of total path */
     int *st, *wt;     /* path and weight tables */
     PrioQ *PQ;        /* priority queue */
     int i;     
+    Point *entrance;
+    int success = 0;
+
+    /* find the entrance Point correspondant with the id given */
+    for(i = 0; i < parkMap->E; i++) {
+        entrance = parkMap->entrancePoints[i];
+        if(strcmp(entranceID, getID(entrance)) == 0){
+            success = 1;
+            break;
+        }
+    }
+    if(success == 0){
+        fprintf(stderr, "There is no entrance with the name %s\n", entranceID);
+        exit(1);
+    }
 
     /* get the path table by calculating ideal path from
      * entrance to access points
