@@ -72,6 +72,7 @@ struct _map{
     int P;    /* num of floors */
     int E, S; /* num of entrances (E) and peon access points (S) */
     int difS; /* num of different type of peon access points */
+    int n_spots, n_av; /* total number of spots, number of available */
 
     char ***mapRep; /* table of matrices to represent multiple floor map */
     Point **accessPoints; /* table of map access points */
@@ -127,7 +128,10 @@ Map *mapInit(char *filename) {
     fscanf(fp, "%d %d %d %d %d", &parkMap->N, &parkMap->M, &parkMap->P,
                 &parkMap->E, &parkMap->S);
 
-    /* initialize number of diferent types to zero */
+    parkMap->n_spots = 0;
+    parkMap->n_av = 0;
+
+    /* initialize number of diferent access types to zero */
     parkMap->difS = 0;
 
     fgets(skipLine, SIZE, fp); /* make file stream point to next line) */
@@ -308,6 +312,7 @@ void buildGraphs(Map *parkMap) {
                 switch(parkMap->mapRep[n][m][p]){
                     case '@': break;
                     case 'x':
+                        parkMap->n_spots++;
                         break;
                     case 'u':
                         /* insert upper ramp in appropriate floor ramps list */
@@ -472,6 +477,10 @@ void buildGraphs(Map *parkMap) {
                         }
                         break;
                     case '.':
+                        /* increase in number of available spots */
+                        parkMap->n_spots++;
+                        parkMap->n_av++;
+
                         /* check for possibility of edge with neighbours */
                         /* 
                          * only checking peon graph because no car will 
