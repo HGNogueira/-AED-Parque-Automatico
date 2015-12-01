@@ -19,6 +19,7 @@
 #include"dbg.h"
 #include"point.h"
 #include"graphL.h"
+#include"queue.h"
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -88,7 +89,9 @@ struct _map{
     int R;              /* number of restrictions */
     Restriction **rcts; /* table of Restriction pointers, appliccable if needed*/
 
-    GraphL *Graph; /* car and pedestrian graph */
+    Queue *Q;                    /* car queue, in case of no more free spots */
+
+    GraphL *Graph;               /* car and pedestrian graph */
 };
 
 
@@ -815,6 +818,73 @@ int findPath(Map *parkMap, char *entranceID, char accessType) {
     PQdestroy(PQ);
 
     return cost;
+}
+
+
+ /*
+ *  Function:
+ *      restrictMapCoordinate
+ *  Description:
+ *      breaks edges from a certain location in a map thus becoming unusable 
+ *  when calculatin ideal path
+ *
+ *  Arguments:
+ *      Pointer to struct Map
+ *      int x, y, z - location coordinates
+ *  Return value:
+ *      none
+ *
+ *  Secondary effects:
+ *      changes the internal graph of Map structure sent as argument
+ */
+
+void restrictMapCoordinate(Map *parkMap, int x, int y, int z){
+    int N, M, P;
+
+    N = parkMap->N;
+    M = parkMap->M;
+    P = parkMap->P;
+
+    /* deactive car path node */
+    GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
+
+    /* and deactivate peon path node */
+    GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P) + N*M*P);
+
+    return;
+}
+
+
+ /*
+ *  Function:
+ *      freeRestrictionMapCoordinate
+ *  Description:
+ *      activates the respective node in internal graph making it usable in 
+ *  the calculation of the ideal path again
+ *
+ *  Arguments:
+ *      Pointer to struct Map
+ *      int x, y, z - location coordinates
+ *  Return value:
+ *      none
+ *
+ *  Secondary effects:
+ *      changes the internal graph of Map structure sent as argument
+ */
+
+void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z){
+    int N, M, P;
+
+    N = parkMap->N;
+    M = parkMap->M;
+    P = parkMap->P;
+
+    /* activate car path node */
+    GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
+
+    /* and deactivate peon path node */
+    GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P) + N*M*P);
+    return;
 }
 
 

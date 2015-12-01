@@ -179,6 +179,43 @@ int findPath(Map *parkMap, char *entranceID, char accessType);
 
 
 /*
+ * Function:
+ *     restrictMapCoordinate
+ *
+ * Description:
+ *     restricts a location in the map, location is no longer available for
+ *  usage
+ *
+ *  Arguments:
+ *     Map *parkMap - contains the current parking map configuration
+ *     int x, y, z - coordinates for applied restriction
+ *  return value:
+ *     void
+ */
+
+void restrictMapCoordinate(Map *parkMap, int x, int y, int z);
+
+
+/*
+ * Function:
+ *     freeRestrictionMapCoordinate
+ *
+ * Description:
+ *     unrestricts a map coordinate, it is again usable for calculating ideal
+ *  paths
+ *
+ *  Arguments:
+ *     Map *parkMap - contains the current parking map configuration
+ *     int x, y, z - coordinates to free from restriction
+ *  return value:
+ *     void
+ */
+
+void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z);
+
+
+
+/*
  *  Function:
  *    loadRestrictions
  *
@@ -194,6 +231,7 @@ int findPath(Map *parkMap, char *entranceID, char accessType);
  */
 
 void loadRestrictions(Map *parkMap, char *restrictionFile);
+
 
 /*
  *  Functions:
