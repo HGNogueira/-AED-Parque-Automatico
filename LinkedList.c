@@ -268,17 +268,36 @@ LinkedList * insertUnsortedLinkedList(LinkedList * next, Item this)
  *  Return value:
  *    Returns the pointer to the first node of the sorted linked list.
  */
-LinkedList * insertSortedLinkedList(LinkedList * first, 
-                           Item item, 
-                           int (* comparisonItemFnt)
-                           (Item item1, Item item2),
-                           int * err)
+LinkedList * mergeOrderedLists(LinkedList *la, LinkedList *lb, 
+                                    int (* compare)(Item i1, Item i2))
 {
+    Item item1, item2;
+    LinkedList *ta, *tb, *mol;
 
+    ta = la; tb = lb;
+    mol = initLinkedList();
 
-
-
-
-  return NULL;
+    while(ta != NULL && tb != NULL){
+        item1 = ta->this;
+        item2 = tb->this;
+        if( compare(item1, item2) == 0){
+            mol = insertUnsortedLinkedList(mol, item1);
+            ta = ta->next;
+        } else {
+            mol = insertUnsortedLinkedList(mol, item2);
+            tb = tb->next;
+        }
+    }
+    while(ta != NULL){
+        item1 = ta->this;
+        mol = insertUnsortedLinkedList(mol, item1);
+        ta = ta->next;
+    }
+    while(tb != NULL){
+        item2 = tb->this;
+        mol = insertUnsortedLinkedList(mol, item2);
+        tb = tb->next;
+    }
+    return mol;
 }
 
