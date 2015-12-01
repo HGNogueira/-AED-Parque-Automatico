@@ -213,6 +213,39 @@ void restrictMapCoordinate(Map *parkMap, int x, int y, int z);
 
 void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z);
 
+/*
+ * Function:
+ *     restrictMapFloor
+ *
+ * Description:
+ *     restricts a whole floor of the car map configuration, cars and peons 
+ *  may no longer transit in said floor
+ *
+ *  Arguments:
+ *     Map *parkMap - contains the current parking map configuration
+ *     int floor - floor number
+ *  return value:
+ *     void
+ */
+
+void restrictMapFloor(Map *parkMap, int floor);
+
+
+/*
+ * Function:
+ *     freeRestrictionMapFloor
+ *
+ * Description:
+ *     frees previously applied restriction to whole floor
+ *
+ *  Arguments:
+ *     Map *parkMap - contains the current parking map configuration
+ *     int floor - floor number
+ *  return value:
+ *     void
+ */
+
+void freeRestrictionMapFloor(Map *parkMap, int floor);
 
 
 /*

@@ -890,12 +890,107 @@ void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z){
     /* activate car path node */
     GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
 
-    /* and deactivate peon path node */
-    GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P) + N*M*P);
+    /* and activate peon path node */
+    GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P) + N*M*P);
     return;
 }
 
 
+/*
+ *  Function:
+ *      restrictMapFloor
+ *  Description:
+ *      restricts a whole floor in map configuration for usage
+ *
+ *  Arguments:
+ *      Pointer to struct Map
+ *      int floor
+ *  Return value:
+ *      none
+ *
+ *  Secondary effects:
+ *      changes the internal graph of Map structure sent as argument
+ */
+
+void restrictMapFloor(Map *parkMap, int floor){
+    Point *t;
+    LinkedList *floorRamps;
+    int i;
+    int x, y, z;
+    int N, M;
+
+    N = parkMap->N;
+    M = parkMap->M;
+
+    /* close all entrances to the floor */
+    for(i = 0; i < parkMap->E; i++){
+        if(getz(parkMap->entrancePoints[i]) == floor){
+            x = getx(parkMap->entrancePoints[i]);
+            y = gety(parkMap->entrancePoints[i]);
+            z = floor;
+            GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
+        }
+    }
+
+    /* go through all the ramps located in that floor and close them */
+    floorRamps = parkMap->ramps[floor];
+    while( (t = (Point *) getItemLinkedList(floorRamps)) != NULL){
+        x = getx(t);
+        y = gety(t);
+        z = floor;
+        GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
+    }
+    return;
+}
+
+
+ /*
+ *  Function:
+ *      freeRestrictionMapFloor
+ *  Description:
+ *      frees previously applied restriction in floor
+ *
+ *  Arguments:
+ *      Pointer to struct Map
+ *      int floor
+ *  Return value:
+ *      none
+ *
+ *  Secondary effects:
+ *      changes the internal graph of Map structure sent as argument
+ */
+
+void freeRestrictionMapFloor(Map *parkMap, int floor){
+    Point *t;
+    LinkedList *floorRamps;
+    int i;
+    int x, y, z;
+    int N, M;
+
+    N = parkMap->N;
+    M = parkMap->M;
+
+    /* reopen all entrances to the floor */
+    for(i = 0; i < parkMap->E; i++){
+        if(getz(parkMap->entrancePoints[i]) == floor){
+            x = getx(parkMap->entrancePoints[i]);
+            y = gety(parkMap->entrancePoints[i]);
+            z = floor;
+            GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
+        }
+    }
+
+    /* go through all the ramps located in that floor and reopen them */
+    floorRamps = parkMap->ramps[floor];
+    while( (t = (Point *) getItemLinkedList(floorRamps)) != NULL){
+        x = getx(t);
+        y = gety(t);
+        z = floor;
+        GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
+    }
+    return;
+}      
+            
  /*
  *  Function:
  *      loadRestrictions
