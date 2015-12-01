@@ -114,6 +114,7 @@ void Gdestroy(GraphL *g) {
     for(i = 0; i < g->nodes; i++)
         freeLinkedList(g->adjL[i], freeEdge);
 
+    free(g->active);
     free(g->adjL);
     free(g);
 }
