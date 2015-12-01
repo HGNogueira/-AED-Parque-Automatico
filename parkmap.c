@@ -117,7 +117,7 @@ Map *mapInit(char *filename) {
     Map *parkMap; 
     int n, m, p, i;                               /* iteration variables */
     char auxChar, desc, *auxPChar;             /* auxiliary chars */
-    char ID[SIZE], *auxString, skipLine[SIZE]; /* auxiliary strings */
+    char ID[SIZE], skipLine[SIZE]; /* auxiliary strings */
     int x, y, z;                               /* point coordinate values */
     int atE = 0, atA = 0;                      /* control variables for access 
                                                 and entrance tables */
@@ -185,19 +185,15 @@ Map *mapInit(char *filename) {
                 case 'E':
                     ungetc(auxChar, fp);
                     fscanf(fp, "%s %d %d %d %c", ID, &x, &y, &z, &desc);
-                    auxString = strdup(ID);
+                    parkMap->entrancePoints[atE] = newPoint(ID, desc, x, y, z);
                     ID[0] = '\0';
-                    parkMap->entrancePoints[atE] = newPoint(auxString, desc, x, y, z);
-                    free(auxString);
                     atE++;
                     break;
                 case 'A':
                     ungetc(auxChar, fp);   /* back to start of description */
                     fscanf(fp, "%s %d %d %d %c", ID, &x, &y, &z, &desc);
-                    auxString = strdup(ID);
+                    parkMap->accessPoints[atA] = newPoint(ID, desc, x, y, z);
                     ID[0] = '\0';
-                    parkMap->accessPoints[atA] = newPoint(auxString, desc, x, y, z);
-                    free(auxString);
 
                     /* check if first time in Lookup table */
                     if(parkMap->accessTable[ (int) desc ] == -1) {
@@ -782,6 +778,10 @@ int findPath(Map *parkMap, char *entranceID, char accessType) {
                     gety(entrance),
                     getz(entrance), parkMap->N, parkMap->M, parkMap->P);
     dest = parkMap->accessTable[(int) accessType];
+    if(dest == -1) {
+        fprintf(stderr, "There's no access with that type\n");
+        exit(1);
+    }
 
 
     /* pre-Initialize weight and path tables, posterior function requirement */
@@ -845,6 +845,10 @@ void restrictMapCoordinate(Map *parkMap, int x, int y, int z){
     M = parkMap->M;
     P = parkMap->P;
 
+    /* if restricting a parking spot, decrease num of available spots */
+    if(parkMap->mapRep[x][y][z] == '.')
+        parkMap->n_av--;
+
     /* deactive car path node */
     GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
 
@@ -878,6 +882,10 @@ void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z){
     N = parkMap->N;
     M = parkMap->M;
     P = parkMap->P;
+
+    /* if freeing a parking spot, increase num of available spots */
+    if(parkMap->mapRep[x][y][z] == '.')
+        parkMap->n_av++;
 
     /* activate car path node */
     GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
