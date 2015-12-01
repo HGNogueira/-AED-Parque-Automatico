@@ -17,7 +17,7 @@ struct _hashtable{
 
 int hash(int m, int p, char *key){
     int h = 0, c;
-    while(c = (int) *key++)
+    while( (c = (int) *key++) )
         h = h*p + c;
     h = h % m;
     return h;
@@ -27,13 +27,14 @@ HashTable *HTinit(int m, int p){
     int i;
     HashTable *ht;
 
+    ht = (HashTable*) malloc(sizeof(HashTable));
     ht->m = m;
     ht->p = p;
     ht->table = (LinkedList**) malloc(sizeof(LinkedList*) * m);
 
     for(i = 0; i < m; i++)
         ht->table[i] = initLinkedList();
-    return;
+    return ht;
 }
 
 int HTinsert(HashTable *ht, Item t, char *key){
@@ -80,5 +81,6 @@ void HTdestroy(HashTable *ht){
         freeLinkedList(ht->table[i], ObjectDestroy);
 
     free(ht->table);
+    free(ht);
     return;
 }
