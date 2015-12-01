@@ -55,11 +55,18 @@ struct _point{
  */
 Point *newPoint(char *ID, char desc, int x, int y, int z) {
     Point *myPoint;
+    int idSize;
+    int i;
 
     myPoint = (Point*) malloc(sizeof(Point));
     check_mem(myPoint);
 
-    myPoint->id = strdup(ID);
+    idSize = strlen(ID);
+    myPoint->id = (char*) malloc(sizeof(char) * idSize + 1);
+    for(i = 0; i < idSize;i++)
+        myPoint->id[i] = ID[i];
+    myPoint->id[idSize] = '\0';
+
     myPoint->desc = desc;
     myPoint->x = x;
     myPoint->y = y;
