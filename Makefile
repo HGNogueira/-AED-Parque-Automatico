@@ -1,6 +1,6 @@
 CC=gcc
 TARGET=gestor
-CFLAGS=-g -Wall -pedantic
+CFLAGS=-g -Wall -pedantic -ansi
 
 gestor: gestor.o parkmap.o graphL.o LinkedList.o point.o prioQ.o
 	$(CC) -o $(TARGET) $(CFLAGS) $^ 
