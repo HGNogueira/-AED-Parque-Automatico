@@ -28,6 +28,7 @@
 
 #define SIZE 256
 #define CHARSIZE 256
+#define HASHCONSTANT 17
     /* toIndex - macro to convert coordinates into an 1 dimensional index
      *
      * a - column
@@ -69,11 +70,11 @@ typedef struct _restriction{
  */
 
 struct _map{
-    int N, M; /* floor dimensions NxM */
-    int P;    /* num of floors */
-    int E, S; /* num of entrances (E) and peon access points (S) */
-    int difS; /* num of different type of peon access points */
-    int n_spots, n_av; /* total number of spots, number of available */
+    int N, M;             /* floor dimensions NxM */
+    int P;                /* num of floors */
+    int E, S;             /* num of entrances (E) and peon access points (S) */
+    int difS;             /* num of different type of peon access points */
+    int n_spots, n_av;    /* total number of spots, number of available */
 
     char ***mapRep; /* table of matrices to represent multiple floor map */
     Point **accessPoints; /* table of map access points */
@@ -214,7 +215,6 @@ Map *mapInit(char *filename) {
         fgets(skipLine, SIZE, fp); /* make file stream point to next line) */
         skipLine[0] = '\0';
     }
-
 
     parkMap->R = 0;                 /* initialize parkMap restrictions to 
                                        non-existent */
@@ -586,7 +586,6 @@ void buildGraphs(Map *parkMap) {
                         N, M, P) + N * M * P,
                     parkMap->accessTable[(int) getDesc(auxAccess) ], 0);
     }
-
 
     parkMap->Graph = Graph;
 
