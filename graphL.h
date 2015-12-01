@@ -29,6 +29,10 @@ int GorigOfEdge(Edge *e);
 int GdestOfEdge(Edge *e);
 int GvalOfEdge(Edge *e);
 
+void GactivateNode(GraphL *g, int v);
+void GdeactivateNode(GraphL *g, int v);
+int GisNodeActive(GraphL *g, int v);
+
 
 /*
  *  Function:

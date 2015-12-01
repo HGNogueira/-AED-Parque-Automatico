@@ -12,8 +12,10 @@ struct _edge{
 };
 
 struct _graphL{
-    int nodes;
-    LinkedList **adjL;
+    int nodes;              /* number of total nodes in a graph */
+    LinkedList **adjL;      /* ajacency list representation of a graph */
+    int *active;            /* node indexed table - 1 represents active
+                               and 0 an inactive node */
 };
 
 void freeEdge(Item e) {
@@ -41,8 +43,12 @@ GraphL *Ginit(int nodes) {
         return NULL;
     }
 
-    for(i = 0; i < nodes; i++)
+    g->active = (int *) malloc(sizeof(int) * nodes);
+
+    for(i = 0; i < nodes; i++){
         g->adjL[i] = initLinkedList();
+        g->active[i] = 1;
+    }
 
     return g;
 }
@@ -148,6 +154,21 @@ int GvalOfEdge(Edge *e) {
     return e->value;
 }
 
+void GactivateNode(GraphL *g, int v){
+    g->active[v] = 1;
+    return;
+}
+
+void GdeactivateNode(GraphL *g, int v){
+    g->active[v] = 0;
+    return;
+}
+
+int GisNodeActive(GraphL *g, int v){
+    return g->active[v];
+}
+
+
 /*
  *  Function:
  *    dijkstra
@@ -181,6 +202,9 @@ int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ) {
          */
         if(hP == dest || wt[hP] == NOCON)
             break;
+        /* ignore if node is an inactive node */
+        if(G->active[hP] == 0)
+            continue;
         for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
             e = getItemLinkedList(t);
             if( wt[ e->w ] > wt[hP] + e->value) {
