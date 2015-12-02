@@ -176,8 +176,9 @@ int main(int argc, char* argv[]) {
     LinkedList *inp, *res, *orders;
     LinkedList *t;
     Order *o;
+    int cost, *st;
     
-    if(argc < 4) {
+    if(argc < 3) {
         Usage();
         return 1;
     }
@@ -190,9 +191,8 @@ int main(int argc, char* argv[]) {
     mapPrintStd(parkMap);
     buildGraphs(parkMap);
 
+    /* load instruction file into Orders reverse ordered list */
     inp = loadInstructionFile(argv[2]);
-    res = loadRestrictionFile(argv[3]);
-
     t = inp;
     fprintf(stdout, "Inputs\n");
     while(t != NULL){
@@ -203,16 +203,31 @@ int main(int argc, char* argv[]) {
         t = getNextNodeLinkedList(t);
     }
 
-    t = res;
-    fprintf(stdout, "Restrictions\n");
-    while(t != NULL){
-        o = (Order *) getItemLinkedList(t);
-        fprintf(stdout, "<%c> <%c> <%d> <%d,%d,%d>\n", o->type,
-                                            o->action, o->time, o->x, o->y, 
-                                            o->z);
-        t = getNextNodeLinkedList(t);
+    /* if restriction file is presented */
+    if(argc == 4){
+        /* load restriction file into Orders reverse ordered list */
+        res = loadRestrictionFile(argv[3]);
+        t = res;
+        fprintf(stdout, "Restrictions\n");
+        while(t != NULL){
+            o = (Order *) getItemLinkedList(t);
+            fprintf(stdout, "<%c> <%c> <%d> <%d,%d,%d>\n", o->type,
+                                                o->action, o->time, o->x, o->y, 
+                                                o->z);
+            t = getNextNodeLinkedList(t);
+        }
     }
+    else
+        res = initLinkedList();
 
+    /* if there is restriction file, both lists will be merged in a ordered
+     * list according to time of execution
+     *
+     * else, if there is no restriction file this instruction will simply 
+     * reverse the order in the inp list
+     *
+     * caution: inpresShuffleOrder frees both input lists
+     */
     orders = inpresShuffleOrder(res, inp);
     t = orders;
     fprintf(stdout, "Shuffle\n");
@@ -228,18 +243,40 @@ int main(int argc, char* argv[]) {
                                             o->z);
         t = getNextNodeLinkedList(t);
     }
-
+    
+    t = orders;
+    while(t != NULL){
+        o = (Order *) getItemLinkedList(t);
+        switch (o->action){
+            case 'E':
+                st = findPath(parkMap, o->x, o->y, o->z, o->type, &cost);
+                break;
+            case 'S':
+                /* freeSpot */
+                break;
+            case 's':
+                /* free spot of car with ID */
+                break;
+            case 'R':
+                restrictMapCoordinate(parkMap, o->x, o->y, o->z);
+                break;
+            case 'r':
+                freeRestrictionMapCoordinate(parkMap, o->x, o->y, o->z);
+                break;
+            case 'P':
+                restrictMapFloor(parkMap, o->z);
+                break;
+            case 'p':
+                freeRestrictionMapFloor(parkMap, o->z);
+                break;
+            default:
+                fprintf(stderr, "Unknown order action %c\n", o->action);
+                break;
+        }
+    }
+    
+    
     freeLinkedList(orders, OrderDestroy);
-
-
-
-    /*
-    findPath(parkMap, argv[2], argv[3][0]);
-
-    if(argc == 5)
-        loadRestrictions(parkMap, argv[4]);
-    */
-
     mapDestroy(parkMap);
 
     return 0;
