@@ -310,9 +310,6 @@ void buildGraphs(Map *parkMap) {
             for(n = 1; n < N - 1; n++){
                 switch(parkMap->mapRep[n][m][p]){
                     case '@': break;
-                    case 'x':
-                        parkMap->n_spots++;
-                        break;
                     case 'u':
                         /* insert upper ramp in appropriate floor ramps list */
                         auxRamp = newPoint("Ramp", 'u', n, m, p);
@@ -413,7 +410,6 @@ void buildGraphs(Map *parkMap) {
                                     toIndex(n,m-1,p,N,M,P), 1);
                         } 
                         break;
-
                     case ' ':   /* if on a free way */
 
                         /* check for possibility of edge with neighbours */
@@ -475,6 +471,15 @@ void buildGraphs(Map *parkMap) {
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                         }
                         break;
+                    case 'x':
+                        parkMap->n_av--;/* to counter-act next increment '.' */
+                        GdeactivateNode(parkMap->Graph, toIndex(n,m,p,N,M,P));
+
+                        /* don't break, continue through to case '.' to add
+                         * all connections. Since spot is deactivated in graph
+                         * it wont be usable until activated
+                         */
+                    
                     case '.':
                         /* increase in number of available spots */
                         parkMap->n_spots++;
@@ -793,6 +798,15 @@ int *findPath(Map *parkMap, int ex, int ey, int ez, char accessType, int *cost) 
         i = st[i];
     }
     fprintf(stdout, "\n");
+
+    /* occupy parking spot */
+    for(i = st[dest]; i != -1; i = st[i]){
+        if( i - st[i] == parkMap->N * parkMap->M * parkMap->P){
+            i = st[i];
+            GdeactivateNode(parkMap->Graph, i);
+            parkMap->n_av--;
+        }
+    }
 
     free(wt);
     PQdestroy(PQ);
