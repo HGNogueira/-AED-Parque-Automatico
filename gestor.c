@@ -19,6 +19,16 @@ typedef struct _order{
     char *id;                   
 } Order;
 
+void OrderDestroy(Item order){
+    if( order == NULL)
+        return;
+    if(((Order *) order)->id != NULL)
+        free(((Order *)order)->id);
+    free( ((Order *) order));
+    return;
+}
+    
+
 void Usage(){
     fprintf(stderr, "Usage:\n\t./gestor <parque.cfg> <entranceID> <accessDesc>\n");
     return;
@@ -66,8 +76,10 @@ LinkedList *loadInstructionFile(char *inpfile){
         } else if(inpRead == 3){
             order = (Order *) malloc(sizeof(Order));
             order->action = 's';
+            order->type = ' ';
             order->time = time;
             order->id = (char *) malloc(sizeof(char) * (strlen(buffer) + 1));
+            strcpy(order->id, buffer);
             buffer[0] = '\0';
             order->x = -1; order->y = -1; order->z = -1;
             t = insertUnsortedLinkedList(t, (Item) order);
@@ -104,13 +116,16 @@ LinkedList *loadRestrictionFile(char *resfile){
             order->action = 'R';
             order->type = ' ';
             order->time = ta;
+            order->id = NULL;
             order->x = x; order->y = y; order->z = z;
             t = insertUnsortedLinkedList(t, (Item) order);
 
             if(tb != 0){
                 order = (Order *) malloc(sizeof(Order));
-                order->type = 'r';
+                order->action = 'r';
+                order->type = ' ';
                 order->time = tb;
+                order->id = NULL;
                 order->x = x; order->y = y; order->z = z;
                 t = insertUnsortedLinkedList(t, (Item) order);
             }
@@ -121,6 +136,7 @@ LinkedList *loadRestrictionFile(char *resfile){
             order->time = ta;
             order->z = x;             /* x contains floor */
             order->x = -1; order->y = -1;
+            order->id = NULL;
 
             t = insertUnsortedLinkedList(t, (Item) order);
             if(tb != 0){
@@ -131,6 +147,7 @@ LinkedList *loadRestrictionFile(char *resfile){
                 order->z = x;        /* x contains floor */
                 order->x = -1;
                 order->y = -1;
+                order->id = NULL;
                 t = insertUnsortedLinkedList(t, (Item) order);
             }
         } else{
@@ -190,7 +207,7 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "Restrictions\n");
     while(t != NULL){
         o = (Order *) getItemLinkedList(t);
-        fprintf(stdout, "<%s> <%c> <%c> <%d> <%d,%d,%d>\n", o->id, o->type,
+        fprintf(stdout, "<%c> <%c> <%d> <%d,%d,%d>\n", o->type,
                                             o->action, o->time, o->x, o->y, 
                                             o->z);
         t = getNextNodeLinkedList(t);
@@ -201,12 +218,18 @@ int main(int argc, char* argv[]) {
     fprintf(stdout, "Shuffle\n");
     while(t != NULL){
         o = (Order *) getItemLinkedList(t);
-        fprintf(stdout, "<%s> <%c> <%c> <%d> <%d,%d,%d>\n", o->id, o->type,
+        if(o->id != NULL)
+            fprintf(stdout, "<%s> <%c> <%c> <%d> <%d,%d,%d>\n", o->id, o->type,
+                                            o->action, o->time, o->x, o->y, 
+                                            o->z);
+        else
+            fprintf(stdout, "<%c> <%c> <%d> <%d,%d,%d>\n", o->type,
                                             o->action, o->time, o->x, o->y, 
                                             o->z);
         t = getNextNodeLinkedList(t);
     }
 
+    freeLinkedList(orders, OrderDestroy);
 
 
 
