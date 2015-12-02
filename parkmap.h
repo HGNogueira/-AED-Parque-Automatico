@@ -248,7 +248,7 @@ void restrictMapFloor(Map *parkMap, int floor);
 void freeRestrictionMapFloor(Map *parkMap, int floor);
 
 
-/*
+/*  UNUSED FUNCTION!!!!!!! TAKE OUT
  *  Function:
  *    loadRestrictions
  *
@@ -263,7 +263,7 @@ void freeRestrictionMapFloor(Map *parkMap, int floor);
  *    int
  */
 
-void loadRestrictions(Map *parkMap, char *restrictionFile);
+/* void loadRestrictions(Map *parkMap, char *restrictionFile); */
 
 
 /*
