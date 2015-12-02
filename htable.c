@@ -5,7 +5,7 @@
 #include<stdlib.h>
 
 typedef struct _object{
-    Item t;
+    int t;
     char *id;
 } Object;
 
@@ -37,7 +37,7 @@ HashTable *HTinit(int m, int p){
     return ht;
 }
 
-int HTinsert(HashTable *ht, Item t, char *key){
+int HTinsert(HashTable *ht, int t, char *key){
     Object *object;
     int h = hash(ht->m, ht->p, key);
 
@@ -45,12 +45,14 @@ int HTinsert(HashTable *ht, Item t, char *key){
     object->id = (char *) malloc(sizeof(char) * (strlen(key) + 1));
     strcpy(object->id, key);
 
+    object->t = t;
+
     ht->table[h] = insertUnsortedLinkedList(ht->table[h], object);
         
     return h;
 }
 
-Item HTget(HashTable *ht, char *key){
+int HTget(HashTable *ht, char *key){
     Object *object;
     LinkedList *auxList;
     int h = hash(ht->m, ht->p, key);

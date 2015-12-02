@@ -7,8 +7,8 @@ typedef struct _hashtable HashTable;
 
 HashTable *HTinit(int n, int p);
 
-Item HTget(HashTable *ht, char *key);
-int HTinsert(HashTable *ht, Item t, char *key);
+int HTget(HashTable *ht, char *key);
+int HTinsert(HashTable *ht, int t, char *key);
 
 void HTdestroy();
 
