@@ -25,7 +25,7 @@ prioQ.o: prioQ.c prioQ.h
 
 htable.o: htable.c htable.h LinkedList.h defs.h
 	$(CC) -c htable.c $(CFLAGS)
-escreve_saida.o:
+escreve_saida.o: escreve_saida.h
 	$(CC) -c escreve_saida.c $(CFLAGS)
 
 clean:
