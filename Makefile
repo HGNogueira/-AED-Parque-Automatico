@@ -2,7 +2,7 @@ CC=gcc
 TARGET=gestor
 CFLAGS=-g -Wall -pedantic -ansi
 
-gestor: gestor.o parkmap.o graphL.o LinkedList.o point.o prioQ.o htable.o
+gestor: gestor.o parkmap.o graphL.o LinkedList.o point.o prioQ.o htable.o escreve_saida.o
 	$(CC) -o $(TARGET) $(CFLAGS) $^ 
 
 gestor.o: gestor.c
@@ -25,6 +25,8 @@ prioQ.o: prioQ.c prioQ.h
 
 htable.o: htable.c htable.h LinkedList.h defs.h
 	$(CC) -c htable.c $(CFLAGS)
+escreve_saida.o:
+	$(CC) -c escreve_saida.c $(CFLAGS)
 
 clean:
 	rm -f $(TARGET) *.o core.*
