@@ -2,7 +2,7 @@ CC=gcc
 TARGET=gestor
 CFLAGS=-g -Wall -pedantic -ansi
 
-gestor: gestor.o parkmap.o graphL.o LinkedList.o point.o prioQ.o htable.o escreve_saida.o
+autopark: gestor.o parkmap.o graphL.o LinkedList.o point.o prioQ.o htable.o escreve_saida.o
 	$(CC) -o $(TARGET) $(CFLAGS) $^ 
 
 gestor.o: gestor.c
