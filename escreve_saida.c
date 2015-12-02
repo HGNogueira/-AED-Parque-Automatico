@@ -47,7 +47,7 @@
 int escreve_saida(FILE *fp, char *vid, int tk, int pX, int pY, int pZ, char tm)
 {
   static char pvid[MAX_ID_SIZE];
-  static int ptk = -1, ppx, ppy, ppz, savep = 1;
+  static int ptk = -1, ppx, ppy, ppz;
 
   int retval = 0;    /* valor retornado quando não há erro;
                       * se houver erro retval = -1
@@ -65,7 +65,6 @@ int escreve_saida(FILE *fp, char *vid, int tk, int pX, int pY, int pZ, char tm)
     fprintf(stderr, "Argumentos invalidos: Identificador de viatura nulo!\n");
     fprintf(stderr, "Chamada erronea:\t\t\t%s %d %d %d %d %c\n",
             vid, tk, pX, pY, pZ, tm);
-    savep = 0;
     retval = -1;
   } else if (tk < 0) {
     fprintf(stderr, "Argumentos invalidos: tempo negativo!\n");
@@ -139,5 +138,3 @@ int escreve_saida(FILE *fp, char *vid, int tk, int pX, int pY, int pZ, char tm)
   return(retval);
 }
 /*end of function */
-
-
