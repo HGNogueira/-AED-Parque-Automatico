@@ -67,7 +67,7 @@ int HTget(HashTable *ht, char *key){
         auxList = getNextNodeLinkedList(auxList);
     }
 
-    return NULL;
+    return -1;
 }
 
 void ObjectDestroy(Item t){
