@@ -4,6 +4,7 @@
 #include"LinkedList.h"
 #include"stdlib.h"
 #include"string.h"
+#include"escreve_saida.h"
 
 typedef struct _order{
     /* char type - describes type of order:
@@ -159,6 +160,7 @@ LinkedList *loadRestrictionFile(char *resfile){
     return t;
 }
 
+/* function used by inpresShuffleOrder to compare times */
 int compareOrderTime(Item order1, Item order2){
     if( ((Order *) order1)->time <= ((Order *) order2)->time)
         return 1;
@@ -171,12 +173,15 @@ LinkedList *inpresShuffleOrder(LinkedList *inpList, LinkedList *resList){
     return mergeOrderedLists(inpList, resList, compareOrderTime);
 }
 
+
 int main(int argc, char* argv[]) {
     Map *parkMap;
     LinkedList *inp, *res, *orders;
     LinkedList *t;
     Order *o;
     int cost, *st;
+    FILE *fp;
+    char *ptsfilename;
     
     if(argc < 3) {
         Usage();
@@ -243,13 +248,21 @@ int main(int argc, char* argv[]) {
                                             o->z);
         t = getNextNodeLinkedList(t);
     }
+
+    ptsfilename = (char *) malloc(sizeof(char) * 
+                                 (strlen(argv[1]) - strlen(".inp") + 1));
+    strncpy(ptsfilename, argv[1], (strlen(argv[1])));
+    strcat(ptsfilename, ".pts");
+
+    fp = fopen(ptsfilename, "w");
     
     t = orders;
     while(t != NULL){
         o = (Order *) getItemLinkedList(t);
         switch (o->action){
             case 'E':
-                st = findPath(parkMap, o->x, o->y, o->z, o->type, &cost);
+                st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
                 break;
             case 'S':
                 /* freeSpot */
@@ -275,7 +288,8 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    
+    fclose(fp);
+    free(ptsfilename);
     freeLinkedList(orders, OrderDestroy);
     mapDestroy(parkMap);
 

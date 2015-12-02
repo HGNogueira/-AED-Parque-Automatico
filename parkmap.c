@@ -20,6 +20,8 @@
 #include"point.h"
 #include"graphL.h"
 #include"queue.h"
+#include"htable.h"
+#include"escreve_saida.h"
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -39,6 +41,10 @@
      * C - num of floors
      */
 #define toIndex(a,b,c,A,B,C) a + (A)*(b) + (A)*(B)*(c) 
+#define toCoordinateX(n,X,Y,Z) ((n)%(X)) % ((X)*(Y)*(Z))
+#define toCoordinateY(n,X,Y,Z) (((n)%((X)*(Y)))/(X)) % ((X)*(Y)*(Z))
+#define toCoordinateZ(n,X,Y,Z) ((n)/((X)*(Y))) % ((X)*(Y)*(Z))
+
 
 
 /*
@@ -91,6 +97,8 @@ struct _map{
     Restriction **rcts; /* table of Restriction pointers, appliccable if needed*/
 
     Queue *Q;                    /* car queue, in case of no more free spots */
+    HashTable *pCars;            /* Hash table with information about parked
+                                    cars*/
 
     GraphL *Graph;               /* car and pedestrian graph */
 };
@@ -593,6 +601,8 @@ void buildGraphs(Map *parkMap) {
     }
 
     parkMap->Graph = Graph;
+    /* initializing hastable with m = n_spots and p = 17 (prime number) */
+    parkMap->pCars = HTinit(parkMap->n_spots, 17);  
 
     #undef LEFT
     #undef RIGHT
@@ -647,6 +657,109 @@ void mapPrintStd(Map *parkMap) {
 
     return;
 }
+
+
+/*
+ *  Function:
+ *    getAccessPoints
+ *
+ *  Description:
+ *    returns the int identifier of the special access type node
+ *
+ *  Arguments:
+ *    Map *parkMap - configuration map
+ *    char desc - access type descriptor character
+ *
+ *  Return value:
+ *    int - number of node
+ */
+
+int getAccessTypeNode(Map *parkMap, char desc){
+    return parkMap->accessTable[ (int) desc];
+}
+
+void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, char accessType){
+    int *path;
+    int i, pathSize, dest, j;
+    int N, M, P;
+    int TIME[3];             /* array to save important times */
+
+    TIME[0] = time;
+
+    N = parkMap->N;
+    M = parkMap->M;
+    P = parkMap->P;
+
+    dest = parkMap->accessTable[ (int) accessType];
+
+    /* find size of path vector */
+    for(i = st[ dest ], pathSize = 0; st[i] != -1; i = st[i], pathSize++);
+    pathSize++;
+
+    /* fill path vector with passby nodes */
+    path = (int *) malloc(sizeof(int) * (pathSize));
+    for(j = pathSize - 1, i = st[dest]; j >= 0; j--, i = st[i]){
+        path[j] = i; 
+    }
+
+    /* write entering output */
+    escreve_saida(fp, ID, time, toCoordinateX(path[0], N, M, P),
+                                toCoordinateY(path[0], N, M, P),
+                                toCoordinateZ(path[0], N, M, P),
+                                'i');
+    /* go through all nodes between the first and parking node */
+    for(j = 1; path[j + 1] - path[j] != N*M*P; j++){
+        time++;
+        /* check if car is going through a ramp and add time if so */
+        if(  (path[j + 1] - path[j] || path[j] - path[j + 1]) == N*M)
+            time++;
+        /* check if node in index j corresponds to a turn in the path
+         * if so this is an important point to consider and we must 
+         * write it out
+         */
+        if(path[j] - path[j - 1] != path[j + 1] - path[j]){
+            escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                        toCoordinateY(path[j], N, M, P),
+                                        toCoordinateZ(path[j], N, M, P), 'm');
+        }
+    }
+    TIME[1] = time;
+    /* car has just parked */
+    escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                toCoordinateY(path[j], N, M, P),
+                                toCoordinateZ(path[j], N, M, P), 'e');
+    /* now start from first peon node and go until you reach the access */
+    for(j = j + 2; j < pathSize - 1; j++){
+        time++;
+        /* check if peon is going through a ramp and add time if so */
+        if(  (path[j + 1] - path[j] || path[j] - path[j + 1]) == N*M)
+            time++;
+        /* check if node in index j corresponds to a turn in the path
+         * if so this is an important point to consider and we must 
+         * write it out
+         */
+        if(path[j] - path[j - 1] != path[j + 1] - path[j]){
+            escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                        toCoordinateY(path[j], N, M, P),
+                                        toCoordinateZ(path[j], N, M, P), 'p');
+        }
+    }
+    /* peon has reached the access point
+     * we may write it to the output file
+     */
+    time = time + 1; /* add one extra tick to arrive to the access */
+    TIME[2] = time;
+    j = pathSize - 1;/* go to the last index of the path list */
+    escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                toCoordinateY(path[j], N, M, P),
+                                toCoordinateZ(path[j], N, M, P), 'a');
+    /* write terminating line */
+    escreve_saida(fp, ID, TIME[0], TIME[1], TIME[2], cost, 'x');
+
+    free(path);
+    return;
+}
+
 /*
  *  Functions: 
  *      printGraph
@@ -730,6 +843,41 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size){
     return pointTable;
 }
 
+/*
+ *  Functions: 
+ *      clearSpotCoordinates
+ *      clearSpotID(
+ *
+ *  Description:
+ *      Frees parking spot coordinates
+ *                   
+ *      based on given coordinates or by given ID
+ *
+ *  Arguments:
+ *      Map *parkmap - map configuration
+ *      int x, y, z - parking spot's coordinates (clearSpotCoordinates)
+ *      char *ID - car identifier (clearSpotID)
+ *      
+ *  Return value:
+ *      void
+ *
+ *  Secondary effects:
+ *      parking spot in graph becomes active again
+ */
+
+void clearSpotCoordinates(Map *parkMap, int x, int y, int z){
+    GactivateNode(parkMap->Graph, toIndex(x, y, z, parkMap->N, parkMap->M
+                                                 , parkMap->P));
+    parkMap->n_av++;
+    return;
+}
+
+void clearSpotID(Map *parkMap, char *ID){
+    int node = HTget(parkMap->pCars, ID);
+    GactivateNode(parkMap->Graph, node);
+    return;
+}
+
 
 /*
  *  Functions: 
@@ -740,16 +888,18 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size){
  *
  *  Arguments:
  *      Map *parkmap - map configuration
- *      Point *entrance - entrance point
- *      Point *access   - access point
+ *      char *ID - car ID 
+ *      int ex, ey, ez - entrance coordinates
+ *      char accessType - descriptor character of access type
+ *      int *cost - reference integer to save cost of path
  *  Return value:
- *      int
+ *      int *
  *
  *  Secondary effects:
  *      none
  */
 
-int *findPath(Map *parkMap, int ex, int ey, int ez, char accessType, int *cost) {
+int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, int *cost) {
     int origin, dest; /* origin and destiny indexed variables */
     int *st, *wt;     /* path and weight tables */
     PrioQ *PQ;        /* priority queue */
@@ -804,6 +954,7 @@ int *findPath(Map *parkMap, int ex, int ey, int ez, char accessType, int *cost) 
         if( i - st[i] == parkMap->N * parkMap->M * parkMap->P){
             i = st[i];
             GdeactivateNode(parkMap->Graph, i);
+            HTinsert(parkMap->pCars, i, ID);
             parkMap->n_av--;
         }
     }

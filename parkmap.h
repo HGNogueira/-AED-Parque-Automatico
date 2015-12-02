@@ -124,6 +124,26 @@ void printGraph(FILE *fp, Map *parkMap);
  *    getAccessPoints
  *
  *  Description:
+ *    returns the int identifier of the special access type node
+ *
+ *  Arguments:
+ *    Map *parkMap - configuration map
+ *    char desc - access type descriptor character
+ *
+ *  Return value:
+ *    int - number of node
+ */
+
+int getAccessTypeNode(Map *parkMap, char desc);
+
+void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, char accessType);
+
+
+/*
+ *  Function:
+ *    getAccessPoints
+ *
+ *  Description:
  *    returns table with access points of a certain description
  *
  *  Arguments:
@@ -158,6 +178,27 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size);
 
 
 /*
+ *  Functions:
+ *    clearSpotCoordinates
+ *    clearSpotID
+ *
+ *  Description:
+ *    Frees parking spots coordinates
+ *
+ *  Arguments:
+ *    Map *parkMap - configuration map
+ *    int x, y, z - parking spot's coordinates (clearSpotCoordinates)
+ *    char *ID - car identifier (clearSpotID)
+ *
+ *  Return value:
+ *    Point * - table of access points
+ */
+
+void clearSpotCoordinates(Map *parkMap, int x, int y, int z);
+void clearSpotID(Map *parkMap, char *ID);
+
+
+/*
  *  Function:
  *    findPath
  *
@@ -168,6 +209,7 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size);
  *
  *  Arguments:
  *    Map *parkMap - contains the parking map configuration
+ *    char *ID - identifier of the car
  *    int ex, ey, ez - entrance point coordinates
  *    Point *access - contains information about the destiny node
  *    int *cost - reference of int to use as total cost of path 
@@ -176,7 +218,7 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size);
  *    int *st - path vector
  */
 
-int *findPath(Map *parkMap,int ex, int ey, int ez, char accessType, int *cost);
+int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, int *cost);
 
 
 /*
