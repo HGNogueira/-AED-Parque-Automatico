@@ -168,14 +168,15 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size);
  *
  *  Arguments:
  *    Map *parkMap - contains the parking map configuration
- *    Point *entrance - contains information about the origin node
+ *    int ex, ey, ez - entrance point coordinates
  *    Point *access - contains information about the destiny node
+ *    int *cost - reference of int to use as total cost of path 
  *
  *  Return value:
- *    int
+ *    int *st - path vector
  */
 
-int findPath(Map *parkMap,int ex, int ey, int ez, char accessType);
+int *findPath(Map *parkMap,int ex, int ey, int ez, char accessType, int *cost);
 
 
 /*

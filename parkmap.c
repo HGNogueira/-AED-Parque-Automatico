@@ -744,9 +744,8 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size){
  *      none
  */
 
-int findPath(Map *parkMap, int ex, int ey, int ez, char accessType) {
+int *findPath(Map *parkMap, int ex, int ey, int ez, char accessType, int *cost) {
     int origin, dest; /* origin and destiny indexed variables */
-    int cost;         /* cost of total path */
     int *st, *wt;     /* path and weight tables */
     PrioQ *PQ;        /* priority queue */
     int i;     
@@ -786,7 +785,7 @@ int findPath(Map *parkMap, int ex, int ey, int ez, char accessType) {
 
 
     /* calculate Ideal path and get total cost */
-    cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ);
+    *cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ);
 
     i = dest;
     while(st[i] != -1) {
@@ -795,11 +794,10 @@ int findPath(Map *parkMap, int ex, int ey, int ez, char accessType) {
     }
     fprintf(stdout, "\n");
 
-    free(st);
     free(wt);
     PQdestroy(PQ);
 
-    return cost;
+    return st;
 }
 
 
