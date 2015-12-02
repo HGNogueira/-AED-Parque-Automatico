@@ -94,7 +94,8 @@ void freeLinkedList(LinkedList * first, freeItemFnt freeItem)
     next = aux->next;
 
     /* Free current item                                          */
-    freeItem(aux->this);
+    if(aux->this != NULL)
+        freeItem(aux->this);
 
     /* Free current node                                          */
     free(aux);
@@ -242,37 +243,31 @@ LinkedList * insertUnsortedLinkedList(LinkedList * next, Item this)
 
 /*
  *  Function:
- *    insertSortedLinkedList
+ *    mergeOrderedLists
  *
  *  Description:
- *    Inserts an item in order in an sorted linked list.
+ *    merges 2 ordered lists into one in reversed order
  *
  *  Arguments:
  *    Pointer to the first node of a sorted linked list:
- *        (LinkedList *) first
- *    Pointer to item to be inserted:
- *        Item item
+ *        (LinkedList *) la
+ *    Pointer to the first node of a sorted linked list:
+ *        (LinkedList *) lb
  *    Pointer to function to compare two items:
- *        int comparisonItemFnt(void * item1, void * item2)
+ *        int compare(void * item1, void * item2)
  *
  *        This function returns a value less, equal, or greater
  *       than zero if item1 compares less, equal, or greater than
  *       item2, respectively.
  *
- *    Pointer to integer to write error return value:
- *        (int *) err
- *
- *        0 upon sucess, 1 in case the item is NULL, and 2 in
- *   case of memory allocation failure.
- *
  *  Return value:
- *    Returns the pointer to the first node of the sorted linked list.
+ *    destroys lists given as arguments in the process
  */
 LinkedList * mergeOrderedLists(LinkedList *la, LinkedList *lb, 
                                     int (* compare)(Item i1, Item i2))
 {
     Item item1, item2;
-    LinkedList *ta, *tb, *mol;
+    LinkedList *ta, *tb, *mol, *aux;
 
     ta = la; tb = lb;
     mol = initLinkedList();
@@ -282,21 +277,29 @@ LinkedList * mergeOrderedLists(LinkedList *la, LinkedList *lb,
         item2 = tb->this;
         if( compare(item1, item2) == 0){
             mol = insertUnsortedLinkedList(mol, item1);
-            ta = ta->next;
+            aux = ta->next;
+            free(ta);
+            ta = aux;
         } else {
             mol = insertUnsortedLinkedList(mol, item2);
-            tb = tb->next;
+            aux = tb->next;
+            free(tb);
+            tb = aux;
         }
     }
     while(ta != NULL){
         item1 = ta->this;
         mol = insertUnsortedLinkedList(mol, item1);
-        ta = ta->next;
+        aux = ta->next;
+        free(ta);
+        ta = aux;
     }
     while(tb != NULL){
         item2 = tb->this;
         mol = insertUnsortedLinkedList(mol, item2);
-        tb = tb->next;
+        aux = tb->next;
+        free(tb);
+        tb = aux;
     }
     return mol;
 }
