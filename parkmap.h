@@ -175,7 +175,7 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size);
  *    int
  */
 
-int findPath(Map *parkMap, char *entranceID, char accessType);
+int findPath(Map *parkMap,int ex, int ey, int ez, char accessType);
 
 
 /*
