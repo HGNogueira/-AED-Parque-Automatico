@@ -1,5 +1,5 @@
 CC=gcc
-TARGET=gestor
+TARGET=autopark
 CFLAGS=-g -Wall -pedantic -ansi
 
 autopark: gestor.o parkmap.o graphL.o LinkedList.o point.o prioQ.o htable.o escreve_saida.o
