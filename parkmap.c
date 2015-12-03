@@ -96,7 +96,6 @@ struct _map{
     int R;              /* number of restrictions */
     Restriction **rcts; /* table of Restriction pointers, appliccable if needed*/
 
-    Queue *Q;                    /* car queue, in case of no more free spots */
     HashTable *pCars;            /* Hash table with information about parked
                                     cars*/
 
