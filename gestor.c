@@ -5,6 +5,7 @@
 #include"stdlib.h"
 #include"string.h"
 #include"escreve_saida.h"
+#include"queue.h"
 
 typedef struct _order{
     /* char type - describes type of order:
@@ -182,6 +183,7 @@ int main(int argc, char* argv[]) {
     int cost, *st;
     FILE *fp;
     char *ptsfilename;
+    Queue *Q;
     
     if(argc < 3) {
         Usage();
@@ -235,35 +237,81 @@ int main(int argc, char* argv[]) {
 
     fp = fopen(ptsfilename, "w");
     
+    /* initialize car queue */
+    Q = Qinit();
     t = orders;
     while(t != NULL){
         o = (Order *) getItemLinkedList(t);
         switch (o->action){
             case 'E':
                 st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
-                writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
-                free(st);
+                if(st == NULL)
+                    Qpush(Q, (Item) o);
+                else{
+                    writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                    free(st);
+                }
                 break;
             case 'S':
                 /* freeSpot */
                 clearSpotCoordinates(parkMap, o->x, o->y, o->z);
                 escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 's');
+                if(isQueueEmpty(Q) == 0){
+                    o = (Order *) Qpop(Q);
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    if(st == NULL)
+                        QpushFirst(Q, (Item) o);
+                    else{
+                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        free(st);
+                    }
+                }
                 break;
             case 's':
                 /* free spot of car with ID */
                 clearSpotIDandWrite(fp, parkMap, o->id, o->time);
+                if(isQueueEmpty(Q) == 0){
+                    o = (Order *) Qpop(Q);
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    if(st == NULL)
+                        QpushFirst(Q, (Item) o);
+                    else{
+                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        free(st);
+                    }
+                }
                 break;
             case 'R':
                 restrictMapCoordinate(parkMap, o->x, o->y, o->z);
                 break;
             case 'r':
                 freeRestrictionMapCoordinate(parkMap, o->x, o->y, o->z);
+                if(isQueueEmpty(Q) == 0){
+                    o = (Order *) Qpop(Q);
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    if(st == NULL)
+                        QpushFirst(Q, (Item) o);
+                    else{
+                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        free(st);
+                    }
+                }
                 break;
             case 'P':
                 restrictMapFloor(parkMap, o->z);
                 break;
             case 'p':
                 freeRestrictionMapFloor(parkMap, o->z);
+                if(isQueueEmpty(Q) == 0){
+                    o = (Order *) Qpop(Q);
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    if(st == NULL)
+                        QpushFirst(Q, (Item) o);
+                    else{
+                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        free(st);
+                    }
+                }
                 break;
             default:
                 fprintf(stderr, "Unknown order action %c\n", o->action);
@@ -272,6 +320,7 @@ int main(int argc, char* argv[]) {
         t = getNextNodeLinkedList(t);
     }
     
+    Qdestroy(Q);
     fclose(fp);
     free(ptsfilename);
     freeLinkedList(orders, OrderDestroy);
