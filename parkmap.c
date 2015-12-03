@@ -41,9 +41,9 @@
      * C - num of floors
      */
 #define toIndex(a,b,c,A,B,C) a + (A)*(b) + (A)*(B)*(c) 
-#define toCoordinateX(n,X,Y,Z) ((n)%(X)) % ((X)*(Y)*(Z))
-#define toCoordinateY(n,X,Y,Z) (((n)%((X)*(Y)))/(X)) % ((X)*(Y)*(Z))
-#define toCoordinateZ(n,X,Y,Z) ((n)/((X)*(Y))) % ((X)*(Y)*(Z))
+#define toCoordinateX(n,X,Y,Z) ((n)%(X))
+#define toCoordinateY(n,X,Y,Z) (n % ((X)*(Y)*(Z))) / (X)
+#define toCoordinateZ(n,X,Y,Z) ( (n % ((X)*(Y)*(Z))) / ((X)*(Y)) )
 
 
 
@@ -696,7 +696,9 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     for(i = st[ dest ], pathSize = 0; st[i] != -1; i = st[i], pathSize++);
     pathSize++;
 
-    /* fill path vector with passby nodes */
+    /* fill path vector with passby nodes
+     * starts at the access point node and goes back until entrace is reached
+     */
     path = (int *) malloc(sizeof(int) * (pathSize));
     for(j = pathSize - 1, i = st[dest]; j >= 0; j--, i = st[i]){
         path[j] = i; 
@@ -723,6 +725,7 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
                                         toCoordinateZ(path[j], N, M, P), 'm');
         }
     }
+    time++;
     TIME[1] = time;
     /* car has just parked */
     escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
