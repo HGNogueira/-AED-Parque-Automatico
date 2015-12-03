@@ -246,9 +246,12 @@ int main(int argc, char* argv[]) {
                 break;
             case 'S':
                 /* freeSpot */
+                clearSpotCoordinates(parkMap, o->x, o->y, o->z);
+                escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 's');
                 break;
             case 's':
                 /* free spot of car with ID */
+                clearSpotIDandWrite(fp, parkMap, o->id, o->time);
                 break;
             case 'R':
                 restrictMapCoordinate(parkMap, o->x, o->y, o->z);
