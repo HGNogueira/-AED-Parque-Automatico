@@ -193,22 +193,13 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Error producing the park Map structure\n");
         return 2;
     }
-    mapPrintStd(parkMap);
     buildGraphs(parkMap);
 
     /* load instruction file into Orders reverse ordered list */
     inp = loadInstructionFile(argv[2]);
     t = inp;
-    fprintf(stdout, "Inputs\n");
-    while(t != NULL){
-        o = (Order *) getItemLinkedList(t);
-        fprintf(stdout, "<%s> <%c> <%c> <%d> <%d,%d,%d>\n", o->id, o->type,
-                                            o->action, o->time, o->x, o->y, 
-                                            o->z);
-        t = getNextNodeLinkedList(t);
-    }
 
-    /* if restriction file is presented */
+   /* if restriction file is presented */
     if(argc == 4){
         /* load restriction file into Orders reverse ordered list */
         res = loadRestrictionFile(argv[3]);
@@ -235,23 +226,11 @@ int main(int argc, char* argv[]) {
      */
     orders = inpresShuffleOrder(res, inp);
     t = orders;
-    fprintf(stdout, "Shuffle\n");
-    while(t != NULL){
-        o = (Order *) getItemLinkedList(t);
-        if(o->id != NULL)
-            fprintf(stdout, "<%s> <%c> <%c> <%d> <%d,%d,%d>\n", o->id, o->type,
-                                            o->action, o->time, o->x, o->y, 
-                                            o->z);
-        else
-            fprintf(stdout, "<%c> <%c> <%d> <%d,%d,%d>\n", o->type,
-                                            o->action, o->time, o->x, o->y, 
-                                            o->z);
-        t = getNextNodeLinkedList(t);
-    }
 
-    ptsfilename = (char *) malloc(sizeof(char) * 
-                                 (strlen(argv[1]) - strlen(".inp") + 1));
-    strncpy(ptsfilename, argv[1], (strlen(argv[1]) - strlen(".inp")));
+    /* generate output file name */
+    ptsfilename = (char *) malloc(sizeof(char) * (strlen(argv[1]) + 1));
+    strncpy(ptsfilename, argv[1], (strlen(argv[1]) - 4));
+    ptsfilename[strlen(argv[1]) - 4] = '\0';
     strcat(ptsfilename, ".ptx");
 
     fp = fopen(ptsfilename, "w");
@@ -263,6 +242,7 @@ int main(int argc, char* argv[]) {
             case 'E':
                 st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                 writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                free(st);
                 break;
             case 'S':
                 /* freeSpot */
