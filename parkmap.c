@@ -892,9 +892,18 @@ void clearSpotCoordinates(Map *parkMap, int x, int y, int z){
     return;
 }
 
-void clearSpotID(Map *parkMap, char *ID){
+void clearSpotIDandWrite(FILE *fp, Map *parkMap, char *ID, int time){
     int node = HTget(parkMap->pCars, ID);
+    int N, M, P;
+    N = parkMap->N;
+    M = parkMap->M;
+    P = parkMap->P;
+
     GactivateNode(parkMap->Graph, node);
+    escreve_saida(fp, ID, time, toCoordinateX(node, N, M, P),
+                                toCoordinateY(node, N, M, P),
+                                toCoordinateZ(node, N, M, P),
+                                's');
     return;
 }
 

@@ -195,7 +195,7 @@ Point **getAccessPoints(Map *parkMap, char desc, int *size);
  */
 
 void clearSpotCoordinates(Map *parkMap, int x, int y, int z);
-void clearSpotID(Map *parkMap, char *ID);
+void clearSpotIDandWrite(FILE *fp, Map *parkMap, char *ID, int time);
 
 
 /*
