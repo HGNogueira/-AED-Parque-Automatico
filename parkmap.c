@@ -980,6 +980,11 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
         }
     }
 
+    if(st[dest] == -1){
+        free(st);
+        return NULL;
+    }
+
     free(wt);
     PQdestroy(PQ);
 
