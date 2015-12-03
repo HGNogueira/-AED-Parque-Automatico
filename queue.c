@@ -77,7 +77,7 @@ Queue *Qinit(){
  *    New item added to queue as last member
  */
 
-void *Qpush(Queue *Q, Item t){
+void Qpush(Queue *Q, Item t){
     Node *node;
 
     node = (Node *) malloc(sizeof(Node));
@@ -98,6 +98,50 @@ void *Qpush(Queue *Q, Item t){
     return;
 }
 
+
+/*
+ *  Function:
+ *    QpushFirst
+ *
+ *  Description:
+ *    Pushes into queue data structure a new Item with the highest priority - 
+ *    - first out
+ *
+ *  Arguments:
+ *    Queue *Q - Queue with data elements
+ *    Item t - item to enter Queue
+ *
+ *  Return value:
+ *    void
+ *
+ *  Side-effects:
+ *    New item added to queue as first member
+ */
+
+void QpushFirst(Queue *Q, Item t){
+    Node *node;
+
+    node =(Node *) malloc(sizeof(Node));
+    node->t = t;
+    node->next = NULL;
+
+    if(Q->first == NULL){
+        Q->first = node;
+        return;
+    }
+    if(Q->first != NULL && Q->last == NULL){
+        Q->last = Q->first;
+        Q->first = node;
+        node->next = Q->last;
+        return;
+    }
+    else{
+        node->next = Q->first;
+        Q->first = node;
+        return;
+    }
+}
+    
 
 /*
  *  Function:
@@ -129,6 +173,12 @@ Item Qpop(Queue *Q){
 
     free(node);
     return t;
+}
+
+int isQueueEmpty(Queue *Q){
+    if(Q->first == NULL)
+        return 1;
+    return 0;
 }
 
 

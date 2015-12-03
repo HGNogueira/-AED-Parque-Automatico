@@ -23,8 +23,11 @@
 typedef struct _queue Queue;
 
 Queue *Qinit();
-void *Qpush(Queue *, Item);
+void Qpush(Queue *, Item);
+void QpushFirst(Queue *, Item);
+int isQueueEmpty(Queue *Q);
 Item Qpop(Queue *);
+void Qdestroy(Queue *);
 
 
 #endif
