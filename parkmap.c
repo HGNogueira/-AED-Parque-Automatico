@@ -481,7 +481,7 @@ void buildGraphs(Map *parkMap) {
                         break;
                     case 'x':
                         parkMap->n_av--;/* to counter-act next increment '.' */
-                        GdeactivateNode(parkMap->Graph, toIndex(n,m,p,N,M,P));
+                        GdeactivateNode(Graph, toIndex(n,m,p,N,M,P));
 
                         /* don't break, continue through to case '.' to add
                          * all connections. Since spot is deactivated in graph
