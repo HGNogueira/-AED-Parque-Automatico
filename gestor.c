@@ -251,8 +251,8 @@ int main(int argc, char* argv[]) {
 
     ptsfilename = (char *) malloc(sizeof(char) * 
                                  (strlen(argv[1]) - strlen(".inp") + 1));
-    strncpy(ptsfilename, argv[1], (strlen(argv[1])));
-    strcat(ptsfilename, ".pts");
+    strncpy(ptsfilename, argv[1], (strlen(argv[1]) - strlen(".inp")));
+    strcat(ptsfilename, ".ptx");
 
     fp = fopen(ptsfilename, "w");
     
@@ -286,6 +286,7 @@ int main(int argc, char* argv[]) {
                 fprintf(stderr, "Unknown order action %c\n", o->action);
                 break;
         }
+        t = getNextNodeLinkedList(t);
     }
     
     fclose(fp);
