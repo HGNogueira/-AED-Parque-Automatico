@@ -946,13 +946,6 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
     /* calculate Ideal path and get total cost */
     *cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ);
 
-    i = dest;
-    while(st[i] != -1) {
-        fprintf(stdout, "%d ", st[i]);
-        i = st[i];
-    }
-    fprintf(stdout, "\n");
-
     /* occupy parking spot */
     for(i = st[dest]; i != -1; i = st[i]){
         if( i - st[i] == parkMap->N * parkMap->M * parkMap->P){
@@ -1274,6 +1267,7 @@ void mapDestroy(Map *parkMap) {
             free(parkMap->rcts[i]);
         free(parkMap->rcts);
     }
+    HTdestroy(parkMap->pCars);
 
     free(parkMap);
 }
