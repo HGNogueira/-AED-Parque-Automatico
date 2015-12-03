@@ -42,7 +42,7 @@
      */
 #define toIndex(a,b,c,A,B,C) a + (A)*(b) + (A)*(B)*(c) 
 #define toCoordinateX(n,X,Y,Z) ((n)%(X))
-#define toCoordinateY(n,X,Y,Z) (n % ((X)*(Y)*(Z))) / (X)
+#define toCoordinateY(n,X,Y,Z) ((n % ((X)*(Y)*(Z))) % ((X)*(Y))) / (X)
 #define toCoordinateZ(n,X,Y,Z) ( (n % ((X)*(Y)*(Z))) / ((X)*(Y)) )
 
 
@@ -289,6 +289,7 @@ void buildGraphs(Map *parkMap) {
     for(i = gSize - parkMap->difS; i < gSize; i++) {
         auxPChar = (char*) getItemLinkedList(t);
         parkMap->accessTable[(int) *auxPChar] = i;
+        t = getNextNodeLinkedList(t);
     }
 
     /* initialize ramps table in parkMap */
@@ -327,7 +328,7 @@ void buildGraphs(Map *parkMap) {
 
                         /* connect car path with upper floor */
                         GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n,m,p + 1,N,M,P), 1);
+                                    toIndex(n,m,p + 1,N,M,P), 2);
 
                         /* check for possibility of edge with neighbours */
                         /* 
@@ -377,7 +378,7 @@ void buildGraphs(Map *parkMap) {
 
                         /* connect car path with lower floor */
                         GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n,m,p - 1,N,M,P), 1);
+                                    toIndex(n,m,p - 1,N,M,P), 2);
 
                         /* check for possibility of edge with neighbours */
                         /* 
@@ -713,7 +714,7 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     for(j = 1; path[j + 1] - path[j] != N*M*P; j++){
         time++;
         /* check if car is going through a ramp and add time if so */
-        if(  (path[j + 1] - path[j] || path[j] - path[j + 1]) == N*M)
+        if((path[j] - path[j - 1]) == N*M || (path[j - 1] - path[j]) == N*M)
             time++;
         /* check if node in index j corresponds to a turn in the path
          * if so this is an important point to consider and we must 
