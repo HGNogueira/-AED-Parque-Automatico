@@ -122,10 +122,11 @@ struct _map{
 
 Map *mapInit(char *filename) {
     FILE *fp;
+    int it;
     Map *parkMap; 
     int n, m, p, i;                               /* iteration variables */
     char auxChar, desc, *auxPChar;             /* auxiliary chars */
-    char ID[SIZE], skipLine[SIZE]; /* auxiliary strings */
+    char ID[SIZE]; /* auxiliary strings */
     int x, y, z;                               /* point coordinate values */
     int atE = 0, atA = 0;                      /* control variables for access 
                                                 and entrance tables */
@@ -136,17 +137,18 @@ Map *mapInit(char *filename) {
     fp = fopen( filename, "r");
     check_file(fp);          /* file check debug macro */                   
 
-    fscanf(fp, "%d %d %d %d %d", &parkMap->N, &parkMap->M, &parkMap->P,
+    it = fscanf(fp, "%d %d %d %d %d\n", &parkMap->N, &parkMap->M, &parkMap->P,
                 &parkMap->E, &parkMap->S);
+    if(it != 5){
+        fprintf(stderr, "First line of map config has wrong format\n");
+        exit(1);
+    }
 
     parkMap->n_spots = 0;
     parkMap->n_av = 0;
 
     /* initialize number of diferent access types to zero */
     parkMap->difS = 0;
-
-    fgets(skipLine, SIZE, fp); /* make file stream point to next line) */
-    skipLine[0] = '\0';
 
     /* initializing representation matrices */
     parkMap->mapRep = (char***) malloc(sizeof(char**) * parkMap->N);
@@ -182,8 +184,7 @@ Map *mapInit(char *filename) {
             for(n = 0; n < parkMap->N; n++) {
                 parkMap->mapRep[n][m][p] = (char) fgetc(fp); 
             }
-            fgets(skipLine, SIZE, fp); /* make file stream point to next line) */
-            skipLine[0] = '\0';
+            while( '\n' != fgetc(fp));  /* skip to next line in file */
         }
         
         /* read access and entrance point info between floors */
@@ -192,14 +193,22 @@ Map *mapInit(char *filename) {
             switch(auxChar) {
                 case 'E':
                     ungetc(auxChar, fp);
-                    fscanf(fp, "%s %d %d %d %c", ID, &x, &y, &z, &desc);
+                    it = fscanf(fp, "%s %d %d %d %c", ID, &x, &y, &z, &desc);
+                    if(it != 5){
+                        fprintf(stderr, "Entrance line has wrong format\n");
+                        exit(1);
+                    }
                     parkMap->entrancePoints[atE] = newPoint(ID, desc, x, y, z);
                     ID[0] = '\0';
                     atE++;
                     break;
                 case 'A':
                     ungetc(auxChar, fp);   /* back to start of description */
-                    fscanf(fp, "%s %d %d %d %c", ID, &x, &y, &z, &desc);
+                    it = fscanf(fp, "%s %d %d %d %c", ID, &x, &y, &z, &desc);
+                    if(it != 5){
+                        fprintf(stderr, "Access line has wrong format\n");
+                        exit(1);
+                    }
                     parkMap->accessPoints[atA] = newPoint(ID, desc, x, y, z);
                     ID[0] = '\0';
 
@@ -216,11 +225,12 @@ Map *mapInit(char *filename) {
 
                     atA++;
                     break;
+                default:
+                    break;
             }
             auxChar = (char) fgetc(fp);    /* read next character from file */
         }
-        fgets(skipLine, SIZE, fp); /* make file stream point to next line) */
-        skipLine[0] = '\0';
+        while( '\n' != fgetc(fp)); /* skip to next line in file */
     }
 
     parkMap->R = 0;                 /* initialize parkMap restrictions to 
