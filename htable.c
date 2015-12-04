@@ -3,6 +3,7 @@
 #include"LinkedList.h"
 #include<string.h>
 #include<stdlib.h>
+#include<stdio.h>
 
 typedef struct _object{
     int t;
@@ -12,7 +13,7 @@ typedef struct _object{
 struct _hashtable{
     int m;
     int p;
-    LinkedList **table;
+        LinkedList **table;
 };
 
 int hash(int m, int p, char *key){
@@ -69,6 +70,26 @@ int HTget(HashTable *ht, char *key){
 
     return -1;
 }
+
+
+void HTprint(HashTable *ht){
+    int i;
+    LinkedList *t;
+    Object *o;
+    
+    for(i = 0; i < ht->m; i++){
+        t = ht->table[i];
+        fprintf(stdout, "%d: ", i);
+    while(t != NULL){
+        o = (Object *) getItemLinkedList(t);
+        fprintf(stdout, "-> %s:%d ", o->id, o->t);
+        t = getNextNodeLinkedList(t);
+    }
+    fprintf(stdout, "\n");
+    }
+    return;
+}
+
 
 void ObjectDestroy(Item t){
     Object *object = (Object *) t;

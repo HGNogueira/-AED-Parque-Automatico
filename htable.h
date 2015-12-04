@@ -9,6 +9,7 @@ HashTable *HTinit(int n, int p);
 
 int HTget(HashTable *ht, char *key);
 int HTinsert(HashTable *ht, int t, char *key);
+void HTprint(HashTable *ht);
 
 void HTdestroy();
 
