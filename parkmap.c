@@ -970,6 +970,14 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
     /* calculate Ideal path and get total cost */
     *cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ);
 
+    /* if no path is encountered, return NULL pointer */
+    if(st[dest] == -1){
+        free(wt);
+        PQdestroy(PQ);
+        free(st);
+        return NULL;
+    }
+
     /* occupy parking spot */
     for(i = st[dest]; i != -1; i = st[i]){
         if( i - st[i] == parkMap->N * parkMap->M * parkMap->P){
@@ -977,12 +985,8 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
             GdeactivateNode(parkMap->Graph, i);
             HTinsert(parkMap->pCars, i, ID);
             parkMap->n_av--;
+            break;
         }
-    }
-
-    if(st[dest] == -1){
-        free(st);
-        return NULL;
     }
 
     free(wt);
