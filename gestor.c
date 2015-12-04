@@ -233,7 +233,7 @@ int main(int argc, char* argv[]) {
     ptsfilename = (char *) malloc(sizeof(char) * (strlen(argv[1]) + 1));
     strncpy(ptsfilename, argv[1], (strlen(argv[1]) - 4));
     ptsfilename[strlen(argv[1]) - 4] = '\0';
-    strcat(ptsfilename, ".ptx");
+    strcat(ptsfilename, ".pts");
 
     fp = fopen(ptsfilename, "w");
     
@@ -326,5 +326,5 @@ int main(int argc, char* argv[]) {
     freeLinkedList(orders, OrderDestroy);
     mapDestroy(parkMap);
 
-    return 0;
+    exit(0);
 }
