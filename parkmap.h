@@ -291,24 +291,6 @@ void restrictMapFloor(Map *parkMap, int floor);
 void freeRestrictionMapFloor(Map *parkMap, int floor);
 
 
-/*  UNUSED FUNCTION!!!!!!! TAKE OUT
- *  Function:
- *    loadRestrictions
- *
- *  Description:
- *    loads restriction into Restriction vector of Map structure
- *
- *  Arguments:
- *    Map *parkMap - contains the parking map configuration
- *    char *restrictionFile - restriction type file with all restrictions
- *
- *  Return value:
- *    int
- */
-
-/* void loadRestrictions(Map *parkMap, char *restrictionFile); */
-
-
 /*
  *  Functions:
  *    mapDestroy
