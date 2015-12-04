@@ -825,56 +825,15 @@ void printGraph(FILE *fp, Map *parkMap){
 
 /*
  *  Functions: 
- *      getAccessPoints
- *
- *  Description:
- *      returns table of access points encountered in a Map configuration 
- *      with a certain description
- *
- *  Arguments:
- *      Map *parkmap - map configuration
- *      char desc    - descriptive character of access point type
- *      int *size    - reference to external variable with table size
- *  Return value:
- *      Point ** - Point * table
- *
- *  Secondary effects:
- *      none
- */
-
-Point **getAccessPoints(Map *parkMap, char desc, int *size){
-    Point **pointTable;
-    int i;
-
-    *size = 0;
-
-    for(i = 0; i < parkMap->S; i++)
-        if( getDesc(parkMap->accessPoints[i]) == desc )
-            (*size)++;
-
-    pointTable = (Point**) malloc(sizeof(Point *));
-
-    for(i = 0; i < *size; i++) {
-        if( getDesc(parkMap->accessPoints[i]) == desc){
-            pointTable[i] = newPoint(getID(parkMap->accessPoints[i]),
-                                    desc, getx(parkMap->accessPoints[i]),
-                                    gety(parkMap->accessPoints[i]),
-                                    getz(parkMap->accessPoints[i]));
-        }
-    }
-    
-    return pointTable;
-}
-
-/*
- *  Functions: 
  *      clearSpotCoordinates
- *      clearSpotID(
+ *      clearSpotIDandWrite
  *
  *  Description:
  *      Frees parking spot coordinates
- *                   
- *      based on given coordinates or by given ID
+ *      using the spot coordinates (clearSpotCoordinates)
+ *      using the car ID (clearSpotIdandWrite)
+ *
+ *      In the 2nd case, the program also writes to the output
  *
  *  Arguments:
  *      Map *parkmap - map configuration
@@ -1014,11 +973,17 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
  *      none
  *
  *  Secondary effects:
- *      changes the internal graph of Map structure sent as argument
+ *      changes the internal graph of Map structure sent as argument by
+ *  deactivating respective coordinate node
  */
 
 void restrictMapCoordinate(Map *parkMap, int x, int y, int z){
     int N, M, P;
+
+    if(parkMap->Graph == NULL){
+        fprintf(stderr, "Graph hasn't been built yet\n");
+        return;
+    }
 
     N = parkMap->N;
     M = parkMap->M;
@@ -1052,11 +1017,17 @@ void restrictMapCoordinate(Map *parkMap, int x, int y, int z){
  *      none
  *
  *  Secondary effects:
- *      changes the internal graph of Map structure sent as argument
+ *      changes the internal graph of Map structure sent as argument by
+ *  activating the respective coordinate node
  */
 
 void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z){
     int N, M, P;
+
+    if(parkMap->Graph == NULL){
+        fprintf(stderr, "Graph hasn't been built yet\n");
+        return;
+    }
 
     N = parkMap->N;
     M = parkMap->M;
@@ -1083,12 +1054,13 @@ void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z){
  *
  *  Arguments:
  *      Pointer to struct Map
- *      int floor
+ *      int floor - index of the floor to free
  *  Return value:
  *      none
  *
  *  Secondary effects:
- *      changes the internal graph of Map structure sent as argument
+ *      changes the internal graph of Map structure sent as argument by 
+ *  deactivating fundamental floor nodes
  */
 
 void restrictMapFloor(Map *parkMap, int floor){
@@ -1097,6 +1069,11 @@ void restrictMapFloor(Map *parkMap, int floor){
     int i;
     int x, y, z;
     int N, M;
+
+    if(parkMap->Graph == NULL){
+        fprintf(stderr, "Graph hasn't been built yet\n");
+        return;
+    }
 
     N = parkMap->N;
     M = parkMap->M;
@@ -1127,16 +1104,17 @@ void restrictMapFloor(Map *parkMap, int floor){
  *  Function:
  *      freeRestrictionMapFloor
  *  Description:
- *      frees previously applied restriction in floor
+ *      frees previously applied restricion on floor
  *
  *  Arguments:
  *      Pointer to struct Map
- *      int floor
+ *      int floor - index of the floor to free
  *  Return value:
  *      none
  *
  *  Secondary effects:
- *      changes the internal graph of Map structure sent as argument
+ *      changes the internal graph of Map structure sent as argument through
+ *  activation of fundamental floor nodes
  */
 
 void freeRestrictionMapFloor(Map *parkMap, int floor){
@@ -1145,6 +1123,11 @@ void freeRestrictionMapFloor(Map *parkMap, int floor){
     int i;
     int x, y, z;
     int N, M;
+
+    if(parkMap->Graph == NULL){
+        fprintf(stderr, "Graph hasn't been built yet\n");
+        return;
+    }
 
     N = parkMap->N;
     M = parkMap->M;
@@ -1198,26 +1181,30 @@ void mapDestroy(Map *parkMap) {
         pointDestroy((Item) parkMap->entrancePoints[i]);
     free(parkMap->entrancePoints);
 
-    for(n = 0; n < parkMap->N; n++) {
-        for(m = 0; m < parkMap->M; m++) 
-            free(parkMap->mapRep[n][m]);
-        free(parkMap->mapRep[n]);
+    /* deallocate map representation matrices */
+    if(parkMap->mapRep != NULL){
+        for(n = 0; n < parkMap->N; n++) {
+            for(m = 0; m < parkMap->M; m++) 
+                free(parkMap->mapRep[n][m]);
+            free(parkMap->mapRep[n]);
+        }
+        free(parkMap->mapRep);
     }
-    free(parkMap->mapRep);
 
     if(parkMap->ramps != NULL){
         for(i = 0; i < parkMap->P; i++)
             freeLinkedList(parkMap->ramps[i], pointDestroy);
+        free(parkMap->ramps);
     }
-    free(parkMap->ramps);
 
-    if(parkMap->Graph)
+    if(parkMap->Graph != NULL)
         Gdestroy(parkMap->Graph);
 
     freeLinkedList(parkMap->accessTypes, free);
     free(parkMap->accessTable);
 
-    HTdestroy(parkMap->pCars);
+    if(parkMap->pCars != NULL)
+        HTdestroy(parkMap->pCars);
 
     free(parkMap);
 }

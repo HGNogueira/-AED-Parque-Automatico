@@ -159,25 +159,6 @@ char getMapRepDesc(Map *parkMap, int x, int y, int z);
 
 
 /*
- *  Function:
- *    getAccessPoints
- *
- *  Description:
- *    returns table with access points of a certain description
- *
- *  Arguments:
- *    Map *parkMap - configuration map
- *    char desc - descriptive character of desired type of access
- *    int *size - reference to a size variable, will save table size
- *
- *  Return value:
- *    Point * - table of access points
- */
-
-Point **getAccessPoints(Map *parkMap, char desc, int *size);
-
-
-/*
  *  Functions:
  *    clearSpotCoordinates
  *    clearSpotID
@@ -296,10 +277,10 @@ void freeRestrictionMapFloor(Map *parkMap, int floor);
  *    mapDestroy
  *
  *  Description:
- *    frees all previously allocated memory
+ *    frees all previously allocated memory in Map struct
  *
  *  Arguments:
- *    pointer to map structure
+ *    pointer to map struct
  *
  *  Return value:
  *    void
