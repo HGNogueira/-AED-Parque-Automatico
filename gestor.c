@@ -179,6 +179,7 @@ int main(int argc, char* argv[]) {
     Map *parkMap;
     LinkedList *inp, *res, *orders;
     LinkedList *t;
+    int time;
     Order *o;
     int cost, *st;
     FILE *fp;
@@ -206,14 +207,6 @@ int main(int argc, char* argv[]) {
         /* load restriction file into Orders reverse ordered list */
         res = loadRestrictionFile(argv[3]);
         t = res;
-        fprintf(stdout, "Restrictions\n");
-        while(t != NULL){
-            o = (Order *) getItemLinkedList(t);
-            fprintf(stdout, "<%c> <%c> <%d> <%d,%d,%d>\n", o->type,
-                                                o->action, o->time, o->x, o->y, 
-                                                o->z);
-            t = getNextNodeLinkedList(t);
-        }
     }
     else
         res = initLinkedList();
@@ -257,7 +250,9 @@ int main(int argc, char* argv[]) {
                 clearSpotCoordinates(parkMap, o->x, o->y, o->z);
                 escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 's');
                 if(isQueueEmpty(Q) == 0){
+                    time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
+                    o->time = time;
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                     if(st == NULL)
                         QpushFirst(Q, (Item) o);
@@ -271,7 +266,9 @@ int main(int argc, char* argv[]) {
                 /* free spot of car with ID */
                 clearSpotIDandWrite(fp, parkMap, o->id, o->time);
                 if(isQueueEmpty(Q) == 0){
+                    time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
+                    o->time = time;
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                     if(st == NULL)
                         QpushFirst(Q, (Item) o);
@@ -287,7 +284,9 @@ int main(int argc, char* argv[]) {
             case 'r':
                 freeRestrictionMapCoordinate(parkMap, o->x, o->y, o->z);
                 if(isQueueEmpty(Q) == 0){
+                    time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
+                    o->time = time;
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                     if(st == NULL)
                         QpushFirst(Q, (Item) o);
@@ -303,7 +302,9 @@ int main(int argc, char* argv[]) {
             case 'p':
                 freeRestrictionMapFloor(parkMap, o->z);
                 if(isQueueEmpty(Q) == 0){
+                    time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
+                    o->time = time;
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                     if(st == NULL)
                         QpushFirst(Q, (Item) o);
