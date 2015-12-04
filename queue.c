@@ -84,16 +84,18 @@ void Qpush(Queue *Q, Item t){
     node->t = t;
     node->next = NULL;
 
-    if(Q->first == NULL)
+    if(Q->first == NULL){
         Q->first = node;
+        return;
+    }
     else if(Q->last == NULL){
         Q->last = node;
         Q->first->next = Q->last;      /* if first node, points to self */
+        return;
     }
-    if(Q->last != NULL){
-        Q->last->next = node;
-        Q->last = node;
-    }
+
+    Q->last->next = node;
+    Q->last = node;
 
     return;
 }
@@ -169,6 +171,11 @@ Item Qpop(Queue *Q){
     node = Q->first;
     if(node->next != NULL)
         Q->first = node->next;
+    else
+        Q->first = NULL;
+
+    if(Q->first == Q->last)
+        Q->last = NULL;
     t = node->t;
 
     free(node);
