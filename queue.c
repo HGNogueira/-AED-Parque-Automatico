@@ -209,9 +209,14 @@ int isQueueEmpty(Queue *Q){
  */
 
 void Qdestroy(Queue *Q){
+    Node *node, *aux;
     if(Q->first != NULL){
-        fprintf(stderr, "Queue isn't empty, can't destroy\n");
-        return;
+        node = Q->first;
+        while(node != NULL){
+            aux = node->next;
+            free(node);
+            node = aux;
+        }
     }
     free(Q);
 }
