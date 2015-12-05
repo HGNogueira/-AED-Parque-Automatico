@@ -301,13 +301,15 @@ int main(int argc, char* argv[]) {
                 break;
             case 'p':
                 freeRestrictionMapFloor(parkMap, o->z);
-                if(isQueueEmpty(Q) == 0){
+                while(isQueueEmpty(Q) == 0){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
                     o->time = time;
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
-                    if(st == NULL)
+                    if(st == NULL){
                         QpushFirst(Q, (Item) o);
+                        break;
+                    }
                     else{
                         writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
                         free(st);
