@@ -742,15 +742,9 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
                                 toCoordinateY(path[j], N, M, P),
                                 toCoordinateZ(path[j], N, M, P), 'e');
-    /* write first node as peon, requesite */
-    time++;
-    j = j + 2;
-    escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
-                                toCoordinateY(path[j], N, M, P),
-                                toCoordinateZ(path[j], N, M, P), 'p');
-    
+
     /* now start from first peon node and go until you reach the access */
-    for(j++ ; j < pathSize - 1; j++){
+    for(j += 2 ; j < pathSize - 2; j++){
         time++;
         /* check if peon is going through a ramp and add time if so */
         if(  (path[j + 1] - path[j] || path[j] - path[j + 1]) == N*M)
@@ -765,6 +759,13 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
                                         toCoordinateZ(path[j], N, M, P), 'p');
         }
     }
+    /* peon is in last square before access - print info */
+    time++;
+    j = pathSize - 2;
+    escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                toCoordinateY(path[j], N, M, P),
+                                toCoordinateZ(path[j], N, M, P), 'p');
+
     /* peon has reached the access point
      * we may write it to the output file
      */
