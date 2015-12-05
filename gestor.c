@@ -226,7 +226,7 @@ int main(int argc, char* argv[]) {
     ptsfilename = (char *) malloc(sizeof(char) * (strlen(argv[1]) + 1));
     strncpy(ptsfilename, argv[1], (strlen(argv[1]) - 4));
     ptsfilename[strlen(argv[1]) - 4] = '\0';
-    strcat(ptsfilename, ".pts");
+    strcat(ptsfilename, ".ptx");
 
     fp = fopen(ptsfilename, "w");
     
@@ -238,8 +238,10 @@ int main(int argc, char* argv[]) {
         switch (o->action){
             case 'E':
                 st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
-                if(st == NULL)
+                if(st == NULL){
+                    escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 'i');
                     Qpush(Q, (Item) o);
+                }
                 else{
                     writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
                     free(st);
@@ -252,12 +254,12 @@ int main(int argc, char* argv[]) {
                 if(isQueueEmpty(Q) == 0){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
-                    o->time = time;
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                     if(st == NULL)
                         QpushFirst(Q, (Item) o);
                     else{
-                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        cost += time - o->time;
+                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
                         free(st);
                     }
                 }
@@ -268,12 +270,12 @@ int main(int argc, char* argv[]) {
                 if(isQueueEmpty(Q) == 0){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
-                    o->time = time;
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                     if(st == NULL)
                         QpushFirst(Q, (Item) o);
                     else{
-                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        cost += time - o->time;
+                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
                         free(st);
                     }
                 }
@@ -283,15 +285,15 @@ int main(int argc, char* argv[]) {
                 break;
             case 'r':
                 freeRestrictionMapCoordinate(parkMap, o->x, o->y, o->z);
-                if(isQueueEmpty(Q) == 0){
+                while(isQueueEmpty(Q) == 0){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
-                    o->time = time;
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                     if(st == NULL)
                         QpushFirst(Q, (Item) o);
                     else{
-                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        cost += time - o->time; /* add additional cost for waiting */
+                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
                         free(st);
                     }
                 }
@@ -304,14 +306,14 @@ int main(int argc, char* argv[]) {
                 while(isQueueEmpty(Q) == 0){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
-                    o->time = time;
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                     if(st == NULL){
                         QpushFirst(Q, (Item) o);
                         break;
                     }
                     else{
-                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        cost += time - o->time;
+                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
                         free(st);
                     }
                 }
