@@ -1,6 +1,6 @@
 CC=gcc
 TARGET=autopark
-CFLAGS=-O3 -Wall -pedantic -ansi
+CFLAGS=-O3 -Wall -ansi
 
 autopark: gestor.o parkmap.o graphL.o LinkedList.o point.o prioQ.o htable.o escreve_saida.o queue.o
 	$(CC) -o $(TARGET) $(CFLAGS) $^ 
