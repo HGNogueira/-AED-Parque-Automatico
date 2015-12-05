@@ -502,11 +502,6 @@ void buildGraphs(Map *parkMap) {
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                         }
-                        /*insert in peon path by adding N*M*P to index */
-                        if( strchr("@xe.", (int) RIGHT) == NULL){
-                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
-                                    toIndex(n+1,m,p,N,M,P) + N*M*P , 3);
-                        }
                         /* TOP */
                         if( strchr("@ea", (int) TOP) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
@@ -521,6 +516,11 @@ void buildGraphs(Map *parkMap) {
                         if( strchr("@ea", (int) RIGHT) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n+1,m,p,N,M,P), 1);
+                        }
+                        /*insert in peon path by adding N*M*P to index */
+                        if( strchr("@xe.", (int) RIGHT) == NULL){
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                                    toIndex(n+1,m,p,N,M,P) + N*M*P , 3);
                         }
                         /* BOTTOM */
                         if( strchr("@ea", (int) BOTTOM) == NULL){
@@ -742,6 +742,103 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
                                 toCoordinateY(path[0], N, M, P),
                                 toCoordinateZ(path[0], N, M, P),
                                 'i');
+    /* go through all nodes between the first and parking node */
+    for(j = 1; path[j + 1] - path[j] != N*M*P; j++){
+        time++;
+        /* check if car is going through a ramp and add time if so */
+        if((path[j] - path[j - 1]) == N*M || (path[j - 1] - path[j]) == N*M)
+            time++;
+        /* check if node in index j corresponds to a turn in the path
+         * if so this is an important point to consider and we must 
+         * write it out
+         */
+        if(path[j] - path[j - 1] != path[j + 1] - path[j]){
+            test = 1;
+            escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                        toCoordinateY(path[j], N, M, P),
+                                        toCoordinateZ(path[j], N, M, P), 'm');
+        }
+    }
+    if(test == 0){
+        escreve_saida(fp, ID, TIME[0] + 1, toCoordinateX(path[1], N, M, P),
+                                toCoordinateY(path[1], N, M, P),
+                                toCoordinateZ(path[1], N, M, P), 'm');
+    }
+    time++;
+    TIME[1] = time;
+    /* car has just parked */
+    escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                toCoordinateY(path[j], N, M, P),
+                                toCoordinateZ(path[j], N, M, P), 'e');
+
+    test = 0;
+    /* now start from first peon node and go until you reach the access */
+    for(j += 2 ; j < pathSize - 1; j++){
+        time++;
+        /* check if peon is going through a ramp and add time if so */
+        if(  (path[j + 1] - path[j] || path[j] - path[j + 1]) == N*M)
+            time++;
+        /* check if node in index j corresponds to a turn in the path
+         * if so this is an important point to consider and we must 
+         * write it out
+         */
+        if(path[j] - path[j - 1] != path[j + 1] - path[j]){
+            test = 1;
+            escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                        toCoordinateY(path[j], N, M, P),
+                                        toCoordinateZ(path[j], N, M, P), 'p');
+        }
+    }
+    if(test == 0){
+        j = pathSize - 2;
+        escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                toCoordinateY(path[j], N, M, P),
+                                toCoordinateZ(path[j], N, M, P), 'p');
+    }
+    /* peon has reached the access point
+     * we may write it to the output file
+     */
+    time++; /* add one extra tick to arrive to the access */
+    TIME[2] = time;
+    j = pathSize - 1;/* go to the last index of the path list */
+    escreve_saida(fp, ID, time, toCoordinateX(path[j], N, M, P),
+                                toCoordinateY(path[j], N, M, P),
+                                toCoordinateZ(path[j], N, M, P), 'a');
+    /* write terminating line */
+    escreve_saida(fp, ID, TIME[0], TIME[1], TIME[2], cost, 'x');
+
+    free(path);
+    return;
+}
+
+void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time, 
+        char *ID, char accessType, int origTime){
+    int *path;
+    int i, pathSize, dest, j;
+    int N, M, P;
+    int TIME[3];             /* array to save important times */
+    int test = 0;            /* to test if at least 1 m or p is printed */
+
+    TIME[0] = origTime;
+
+    N = parkMap->N;
+    M = parkMap->M;
+    P = parkMap->P;
+
+    dest = parkMap->accessTable[ (int) accessType];
+
+    /* find size of path vector */
+    for(i = st[ dest ], pathSize = 0; st[i] != -1; i = st[i], pathSize++);
+    pathSize++;
+
+    /* fill path vector with passby nodes
+     * starts at the access point node and goes back until entrace is reached
+     */
+    path = (int *) malloc(sizeof(int) * (pathSize));
+    for(j = pathSize - 1, i = st[dest]; j >= 0; j--, i = st[i]){
+        path[j] = i; 
+    }
+
     /* go through all nodes between the first and parking node */
     for(j = 1; path[j + 1] - path[j] != N*M*P; j++){
         time++;

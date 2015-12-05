@@ -137,7 +137,8 @@ void printGraph(FILE *fp, Map *parkMap);
 int getAccessTypeNode(Map *parkMap, char desc);
 
 void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, char accessType);
-
+void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
+                 char *ID, char accessType, int origTime);
 
 /*
  *  Function:
