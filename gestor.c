@@ -42,6 +42,7 @@ LinkedList *loadInstructionFile(char *inpfile){
     char buffer[256];
     int time, x, y, z;
     char type;
+    char auxChar;
     int inpRead;
     Order *order;
     LinkedList *t;
@@ -56,38 +57,43 @@ LinkedList *loadInstructionFile(char *inpfile){
 
     buffer[0] = '\0';
 
-    while(1){
-        inpRead = fscanf(fp, "%s %d %c %d %d %d\n", buffer, &time, &type,
-                                                  &x, &y, &z);
-        if(inpRead == 6){
-            order = (Order *) malloc(sizeof(Order));
-            if(type == 'S'){
-                order->action = 'S';
+    auxChar = (char) fgetc(fp);
+    while(auxChar != EOF){
+        if(auxChar == 'V'){
+            ungetc(auxChar, fp);
+            inpRead = fscanf(fp, "%s %d %c %d %d %d", buffer, &time, &type,
+                                                      &x, &y, &z);
+            if(inpRead == 6){
+                order = (Order *) malloc(sizeof(Order));
+                if(type == 'S'){
+                    order->action = 'S';
+                    order->type = ' ';
+                }
+                else{
+                    order->type = type;
+                    order->action = 'E';
+                }
+                order->time = time;
+                order->x = x; order->y = y; order->z = z;
+                order->id = (char *) malloc(sizeof(char) * (strlen(buffer) + 1));
+                strcpy(order->id, buffer);
+                buffer[0] = '\0';
+                t = insertUnsortedLinkedList(t, (Item) order);
+            } else if(inpRead == 3){
+                order = (Order *) malloc(sizeof(Order));
+                order->action = 's';
                 order->type = ' ';
+                order->time = time;
+                order->id = (char *) malloc(sizeof(char) * (strlen(buffer) + 1));
+                strcpy(order->id, buffer);
+                buffer[0] = '\0';
+                order->x = -1; order->y = -1; order->z = -1;
+                t = insertUnsortedLinkedList(t, (Item) order);
+            } else{
+                break;
             }
-            else{
-                order->type = type;
-                order->action = 'E';
-            }
-            order->time = time;
-            order->x = x; order->y = y; order->z = z;
-            order->id = (char *) malloc(sizeof(char) * (strlen(buffer) + 1));
-            strcpy(order->id, buffer);
-            buffer[0] = '\0';
-            t = insertUnsortedLinkedList(t, (Item) order);
-        } else if(inpRead == 3){
-            order = (Order *) malloc(sizeof(Order));
-            order->action = 's';
-            order->type = ' ';
-            order->time = time;
-            order->id = (char *) malloc(sizeof(char) * (strlen(buffer) + 1));
-            strcpy(order->id, buffer);
-            buffer[0] = '\0';
-            order->x = -1; order->y = -1; order->z = -1;
-            t = insertUnsortedLinkedList(t, (Item) order);
-        } else{
-            break;
         }
+        auxChar = (char) fgetc(fp);
     }
     fclose(fp);
 
@@ -99,7 +105,7 @@ LinkedList *loadRestrictionFile(char *resfile){
     FILE *fp;
     int ta, tb, x, y, z;
     int inpRead;
-    char R;
+    char R, auxChar;
     Order *order;
     LinkedList *t;
 
@@ -110,51 +116,58 @@ LinkedList *loadRestrictionFile(char *resfile){
         fprintf(stderr, "Couldn't open restrictions file %s\n", resfile);
         return NULL;
     }
-    while(1){
-        inpRead = fscanf(fp, "%c %d %d %d %d %d\n", &R, &ta, &tb,
-                                                  &x, &y, &z);
-        if(inpRead == 6){
-            order = (Order *) malloc(sizeof(Order));
-            order->action = 'R';
-            order->type = ' ';
-            order->time = ta;
-            order->id = NULL;
-            order->x = x; order->y = y; order->z = z;
-            t = insertUnsortedLinkedList(t, (Item) order);
 
-            if(tb != 0){
+    /* go through restriction file and list them in reverse order */
+    auxChar = (char) fgetc(fp);
+    while(auxChar != EOF){
+        if(auxChar == 'R'){
+            ungetc(auxChar, fp);
+            inpRead = fscanf(fp, "%c %d %d %d %d %d\n", &R, &ta, &tb,
+                                                      &x, &y, &z);
+            if(inpRead == 6){
                 order = (Order *) malloc(sizeof(Order));
-                order->action = 'r';
+                order->action = 'R';
                 order->type = ' ';
-                order->time = tb;
+                order->time = ta;
                 order->id = NULL;
                 order->x = x; order->y = y; order->z = z;
                 t = insertUnsortedLinkedList(t, (Item) order);
-            }
-        } else if(inpRead == 4){
-            order = (Order *) malloc(sizeof(Order));
-            order->action = 'P';
-            order->type = ' ';
-            order->time = ta;
-            order->z = x;             /* x contains floor */
-            order->x = -1; order->y = -1;
-            order->id = NULL;
 
-            t = insertUnsortedLinkedList(t, (Item) order);
-            if(tb != 0){
+                if(tb != 0){
+                    order = (Order *) malloc(sizeof(Order));
+                    order->action = 'r';
+                    order->type = ' ';
+                    order->time = tb;
+                    order->id = NULL;
+                    order->x = x; order->y = y; order->z = z;
+                    t = insertUnsortedLinkedList(t, (Item) order);
+                }
+            } else if(inpRead == 4){
                 order = (Order *) malloc(sizeof(Order));
-                order->action = 'p';
+                order->action = 'P';
                 order->type = ' ';
-                order->time = tb;
-                order->z = x;        /* x contains floor */
-                order->x = -1;
-                order->y = -1;
+                order->time = ta;
+                order->z = x;             /* x contains floor */
+                order->x = -1; order->y = -1;
                 order->id = NULL;
+
                 t = insertUnsortedLinkedList(t, (Item) order);
+                if(tb != 0){
+                    order = (Order *) malloc(sizeof(Order));
+                    order->action = 'p';
+                    order->type = ' ';
+                    order->time = tb;
+                    order->z = x;        /* x contains floor */
+                    order->x = -1;
+                    order->y = -1;
+                    order->id = NULL;
+                    t = insertUnsortedLinkedList(t, (Item) order);
+                }
+            } else{
+                break;
             }
-        } else{
-            break;
         }
+        auxChar = (char) fgetc(fp);
     }
     fclose(fp);
 
@@ -237,14 +250,20 @@ int main(int argc, char* argv[]) {
         o = (Order *) getItemLinkedList(t);
         switch (o->action){
             case 'E':
-                st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
-                if(st == NULL){
-                    escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 'i');
-                    Qpush(Q, (Item) o);
+                if(isQueueEmpty(Q) == 1){
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    if(st == NULL){
+                        escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 'i');
+                        Qpush(Q, (Item) o);
+                    }
+                    else{
+                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        free(st);
+                    }
                 }
                 else{
-                    writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
-                    free(st);
+                    escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 'i');
+                    Qpush(Q, (Item) o);
                 }
                 break;
             case 'S':
