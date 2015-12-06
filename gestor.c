@@ -289,8 +289,10 @@ int main(int argc, char* argv[]) {
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
-                    if(st == NULL)
+                    if(st == NULL){
                         QpushFirst(Q, (Item) o);
+                        break;
+                    }
                     else{
                         cost += time - o->time; /* add additional cost for waiting */
                         writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
