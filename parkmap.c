@@ -908,45 +908,6 @@ void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
     return;
 }
 
-/*
- *  Functions: 
- *      printGraph
- *
- *  Description:
- *      prints the desired graph previously built in parkMap
- *
- *  Arguments:
- *      file stream pointer
- *      Pointer to struct Map
- *  Return value:
- *      none
- *
- *  Secondary effects:
- *      none
- */
-
-void printGraph(FILE *fp, Map *parkMap){
-    int i = 0;
-    LinkedList *auxLink;
-    Point *auxPoint;
-    Gprint(fp, parkMap->Graph);
-
-    for(i = 0; i < parkMap->P; i++) {
-        auxLink = parkMap->ramps[i];
-        while(auxLink != NULL) {
-            auxPoint = (Point *) getItemLinkedList(auxLink);
-            fprintf(fp, "%c at (%d, %d, %d)\n", 
-                    getDesc(auxPoint),
-                    getx(auxPoint),
-                    gety(auxPoint),
-                    getz(auxPoint));
-            auxLink = getNextNodeLinkedList(auxLink);
-        }
-    }
-
-    return;
-}
-
 
 /*
  *  Functions: 
@@ -1193,7 +1154,7 @@ void restrictMapFloor(Map *parkMap, int floor){
     LinkedList *floorRamps;
     int i;
     int x, y, z;
-    int N, M;
+    int N, M, P;
 
     if(parkMap->Graph == NULL){
         fprintf(stderr, "Graph hasn't been built yet\n");
@@ -1202,6 +1163,7 @@ void restrictMapFloor(Map *parkMap, int floor){
 
     N = parkMap->N;
     M = parkMap->M;
+    P = parkMap->P;
 
     /* close all entrances to the floor */
     for(i = 0; i < parkMap->E; i++){
@@ -1220,6 +1182,8 @@ void restrictMapFloor(Map *parkMap, int floor){
         y = gety(t);
         z = floor;
         GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
+        GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P) + N*M*P);
+        floorRamps = getNextNodeLinkedList(floorRamps);
     }
     return;
 }
@@ -1247,7 +1211,7 @@ void freeRestrictionMapFloor(Map *parkMap, int floor){
     LinkedList *floorRamps;
     int i;
     int x, y, z;
-    int N, M;
+    int N, M, P;
 
     if(parkMap->Graph == NULL){
         fprintf(stderr, "Graph hasn't been built yet\n");
@@ -1256,6 +1220,7 @@ void freeRestrictionMapFloor(Map *parkMap, int floor){
 
     N = parkMap->N;
     M = parkMap->M;
+    P = parkMap->P;
 
     /* reopen all entrances to the floor */
     for(i = 0; i < parkMap->E; i++){
@@ -1274,6 +1239,8 @@ void freeRestrictionMapFloor(Map *parkMap, int floor){
         y = gety(t);
         z = floor;
         GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
+        GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P) + N*M*P);
+        floorRamps = getNextNodeLinkedList(floorRamps);
     }
     return;
 }      
