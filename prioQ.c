@@ -41,10 +41,10 @@ void PQupdate(PrioQ *PQ){
     }
 }
 
-void PQupdateIndex(PrioQ *PQ, int index){
+void PQupdateNode(PrioQ *PQ, int node){
     int *heap = PQ->heap;
     int *wt = PQ->wt;
-    int heapIndex = PQ->index[index];
+    int heapIndex = PQ->index[node];
     /* verify if index corresponds to heap's highest priority */
     if(heapIndex == 0)
         FixDown(PQ, 0);
@@ -84,6 +84,34 @@ int PQdelmin(PrioQ* PQ) {
 
 
     return heap[N - 1];
+}
+
+void PQReinsert(PrioQ *PQ, int node){
+    int auxNode, auxIndex;
+    int *heap = PQ->heap;
+    int *index = PQ->index;
+    int N;
+
+    N = PQ->N;
+    if(index[node] < N){
+        PQupdateNode(PQ, node);
+        return;
+    }
+    
+    auxNode = heap[N];
+    auxIndex = index[node];
+
+    heap[N] = node;
+    index[node] = N;
+
+    heap[auxIndex] = auxNode;
+    index[auxNode] = auxIndex;
+
+    PQ->N++;
+
+    FixUp(PQ, N);
+
+    return;
 }
 
 int PQisempty(PrioQ *PQ){

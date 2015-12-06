@@ -4,8 +4,9 @@
 typedef struct _prioQ PrioQ;
 
 PrioQ *PQinit(int *wt, int size);
-void PQupdate();
-void PQupdateIndex(PrioQ *PQ, int index);
+void PQupdate(PrioQ *PQ);
+void PQupdateNode(PrioQ *PQ, int node);
+void PQReinsert(PrioQ *PQ, int node);
 int PQdelmin(PrioQ* PQ);
 
 void PQprintHeap(PrioQ* PQ);

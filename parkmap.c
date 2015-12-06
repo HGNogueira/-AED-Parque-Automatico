@@ -20,6 +20,7 @@
 #include"point.h"
 #include"graphL.h"
 #include"queue.h"
+#include"prioQ.h"
 #include"htable.h"
 #include"escreve_saida.h"
 
@@ -1013,7 +1014,7 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
     /* set origin definitions and update PQ */
     st[origin] = -1;
     wt[origin] = 0;
-    PQupdateIndex(PQ, origin);
+    PQupdateNode(PQ, origin);
 
 
     /* calculate Ideal path and get total cost */

@@ -210,7 +210,7 @@ int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ) {
             e = getItemLinkedList(t);
             if( wt[ e->w ] > wt[hP] + e->value) {
                 wt[ e->w ] = wt[hP] + e->value;
-                PQupdateIndex(PQ, e->w);
+                PQupdateNode(PQ, e->w);
                 st[e->w] = hP;
             }
         }
