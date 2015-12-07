@@ -68,17 +68,25 @@ LinkedList *loadInstructionFile(char *inpfile){
                 if(type == 'S'){
                     order->action = 'S';
                     order->type = ' ';
+                    order->time = time;
+                    order->x = x; order->y = y; order->z = z;
+                    order->id = (char *) malloc(sizeof(char) * (strlen(buffer) + 1));
+                    strcpy(order->id, buffer);
+                    buffer[0] = '\0';
+
+                    t = insertUnsortedLinkedList(t, (Item) order);
                 }
                 else{
                     order->type = type;
                     order->action = 'E';
+                    order->time = time;
+                    order->x = x; order->y = y; order->z = z;
+                    order->id = (char *) malloc(sizeof(char) * (strlen(buffer) + 1));
+                    strcpy(order->id, buffer);
+                    buffer[0] = '\0';
+
+                    t = insertUnsortedLinkedList(t, (Item) order);
                 }
-                order->time = time;
-                order->x = x; order->y = y; order->z = z;
-                order->id = (char *) malloc(sizeof(char) * (strlen(buffer) + 1));
-                strcpy(order->id, buffer);
-                buffer[0] = '\0';
-                t = insertUnsortedLinkedList(t, (Item) order);
             } else if(inpRead == 3){
                 order = (Order *) malloc(sizeof(Order));
                 order->action = 's';
@@ -191,9 +199,9 @@ LinkedList *inpresShuffleOrder(LinkedList *inpList, LinkedList *resList){
 int main(int argc, char* argv[]) {
     Map *parkMap;
     LinkedList *inp, *res, *orders;
-    LinkedList *t;
+    LinkedList *t, *testT;
     int time;
-    Order *o;
+    Order *o, *testO;
     int cost, *st;
     FILE *fp;
     char *ptsfilename;
@@ -270,6 +278,23 @@ int main(int argc, char* argv[]) {
                 /* freeSpot */
                 clearSpotCoordinates(parkMap, o->x, o->y, o->z);
                 escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 's');
+
+                /* check if there are any map restrictions/unrestrictions ahead */
+                testT = getNextNodeLinkedList(t);
+                if(testT != NULL){
+                    testO = (Order *) getItemLinkedList(testT);
+                    if( strchr("RrPpSs", (int) testO->action) != NULL){
+                        /* if they are applied at the same time */
+                        if( testO->time == o->time){
+                            t = getNextNodeLinkedList(t);
+                            /* go to next node */
+                            continue;
+                        }
+                    }
+
+                }
+                
+                /* if this is the last unrestriction for this exact time */
                 if(isQueueEmpty(Q) == 0){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
@@ -286,6 +311,22 @@ int main(int argc, char* argv[]) {
             case 's':
                 /* free spot of car with ID */
                 clearSpotIDandWrite(fp, parkMap, o->id, o->time);
+
+                /* check if there are any map restrictions/unrestrictions ahead */
+                testT = getNextNodeLinkedList(t);
+                if(testT != NULL){
+                    testO = (Order *) getItemLinkedList(testT);
+                    if( strchr("RrPpSs", (int) testO->action) != NULL){
+                        /* if they are applied at the same time */
+                        if( testO->time == o->time){
+                            t = getNextNodeLinkedList(t);
+                            /* go to next node */
+                            continue;
+                        }
+                    }
+
+                }
+
                 if(isQueueEmpty(Q) == 0){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
@@ -304,6 +345,22 @@ int main(int argc, char* argv[]) {
                 break;
             case 'r':
                 freeRestrictionMapCoordinate(parkMap, o->x, o->y, o->z);
+
+                /* check if there are any map restrictions/unrestrictions ahead */
+                testT = getNextNodeLinkedList(t);
+                if(testT != NULL){
+                    testO = (Order *) getItemLinkedList(testT);
+                    if( strchr("RrPpSs", (int) testO->action) != NULL){
+                        /* if they are applied at the same time */
+                        if( testO->time == o->time){
+                            t = getNextNodeLinkedList(t);
+                            /* go to next node */
+                            continue;
+                        }
+                    }
+
+                }
+
                 while(isQueueEmpty(Q) == 0){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
@@ -324,6 +381,22 @@ int main(int argc, char* argv[]) {
                 break;
             case 'p':
                 freeRestrictionMapFloor(parkMap, o->z);
+
+                /* check if there are any map restrictions/unrestrictions ahead */
+                testT = getNextNodeLinkedList(t);
+                if(testT != NULL){
+                    testO = (Order *) getItemLinkedList(testT);
+                    if( strchr("RrPpSs", (int) testO->action) != NULL){
+                        /* if they are applied at the same time */
+                        if( testO->time == o->time){
+                            t = getNextNodeLinkedList(t);
+                            /* go to next node */
+                            continue;
+                        }
+                    }
+
+                }
+
                 while(isQueueEmpty(Q) == 0){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
