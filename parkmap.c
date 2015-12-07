@@ -917,6 +917,51 @@ void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
 }
 
 
+ /* Function:
+  *     getMapRepDesc
+  * Description:
+  *     returns the character descriptor of the given node
+  *
+  * Arguments:
+  *     Map *parkMap - configuration Map
+  *     int node - respective node
+  *
+  * Return value:
+  *     char - respective character descriptor of the map representation
+  */
+
+char getMapRepDesc(Map *parkMap, int node){
+    int N, M, P;
+    int x, y, z;
+    N = parkMap->N;
+    M = parkMap->M;
+    P = parkMap->P;
+
+    /* if it is an access type node */
+    if(node >= 2*N*M*P)
+        return 'a';
+
+    if(node >= N*M*P)
+        node = node - N*M*P;
+
+    x = toCoordinateX(node, N, M, P);
+    y = toCoordinateY(node, N, M, P);
+    z = toCoordinateZ(node, N, M, P);
+
+    return parkMap->mapRep[x][y][z];
+}
+
+int PgetN(Map *parkMap){
+    return parkMap->N;
+}
+int PgetM(Map *parkMap){
+    return parkMap->M;
+}
+int PgetP(Map *parkMap){
+    return parkMap->P;
+}
+
+
 /*
  *  Functions: 
  *      clearSpotCoordinates
@@ -1026,7 +1071,7 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
 
 
     /* calculate Ideal path and get total cost */
-    *cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ);
+    *cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ, parkMap);
 
     /* if no path is encountered, return NULL pointer */
     if(st[dest] == -1){

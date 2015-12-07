@@ -156,7 +156,10 @@ void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
  *    Point * - table of access points
  */
 
-char getMapRepDesc(Map *parkMap, int x, int y, int z);
+char getMapRepDesc(Map *parkMap, int node);
+int PgetN(Map *parkMap);
+int PgetM(Map *parkMap);
+int PgetP(Map *parkMap);
 
 
 /*

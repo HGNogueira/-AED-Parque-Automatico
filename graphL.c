@@ -191,23 +191,54 @@ int GisNodeActive(GraphL *g, int v){
  *    int indexed table st, delineating the path to take
  */
 
-int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ) {
+int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ, Map *parkMap) {
     int hP;              /* to save highest priority index */
     LinkedList *t;       /* to go through a linked list without modifying */
     Edge *e;             /* to read adjL information contained in Edge * */
+    char desc, prevDesc;
 
     while(!PQisempty(PQ)) {
         hP = PQdelmin(PQ);
         /* if highest priority is our destiny
          * we have found our ideal path
          */
+        /* ignore if node is an inactive node */
+        if(G->active[ hP ] == 0)
+            continue;
         if(hP == dest || wt[hP] == NOCON)
             break;
+        /* check to see if it is a ramp */
+        desc = getMapRepDesc(parkMap, hP);
+        prevDesc = getMapRepDesc(parkMap, hP);
+        if( desc == 'u' || desc == 'd'){
+            /* if previous was a ramp as well, we may go in all directions */
+            if( prevDesc == 'u' || prevDesc == 'd'){
+                for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
+                    e = getItemLinkedList(t);
+                    if( wt[ e->w ] > wt[hP] + e->value) {
+                        wt[ e->w ] = wt[hP] + e->value;
+                        PQupdateNode(PQ, e->w);
+                        st[e->w] = hP;
+                    }
+                }
+            } else{
+                for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
+                    e = getItemLinkedList(t);
+                    if( (e->w - hP != PgetN(parkMap) * PgetN(parkMap)) &&
+                        (hP - e->w != PgetN(parkMap) * PgetN(parkMap)) )
+                        continue;
+                    if( wt[ e->w ] > wt[hP] + e->value) {
+                        wt[ e->w ] = wt[hP] + e->value;
+                        PQupdateNode(PQ, e->w);
+                        st[e->w] = hP;
+                    }
+                }
+            
+            }
+            continue;
+        }
         for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
             e = getItemLinkedList(t);
-            /* ignore if node is an inactive node */
-            if(G->active[ e->w] == 0)
-                continue;
             if( wt[ e->w ] > wt[hP] + e->value) {
                 wt[ e->w ] = wt[hP] + e->value;
                 PQupdateNode(PQ, e->w);

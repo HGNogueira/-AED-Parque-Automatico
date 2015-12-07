@@ -3,6 +3,7 @@
 #include"LinkedList.h"
 #include<stdio.h>
 #include"prioQ.h"
+#include"parkmap.h"
 
 /* this value will indicate that there is no connection between
  * current tree and a node while performing the algorithm 
@@ -65,7 +66,7 @@ int GisNodeActive(GraphL *g, int v);
  *    total cost of calculated path 
  */
 
-int GDijkstra(GraphL *g, int root, int dest, int* st, int *wt, PrioQ *PQ);
+int GDijkstra(GraphL *g, int root, int dest, int* st, int *wt, PrioQ *PQ, Map *parkMap);
 
 
 void GfreeEdge(Item e);
