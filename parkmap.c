@@ -82,6 +82,7 @@ struct _map{
     int E, S;             /* num of entrances (E) and peon access points (S) */
     int difS;             /* num of different type of peon access points */
     int n_spots, n_av;    /* total number of spots, number of available */
+    int *Pn_av;            /* table with total number of spots per floor */
 
     char ***mapRep; /* table of matrices to represent multiple floor map */
     Point **accessPoints; /* table of map access points */
@@ -144,6 +145,10 @@ Map *mapInit(char *filename) {
 
     parkMap->n_spots = 0;
     parkMap->n_av = 0;
+    parkMap->Pn_av = (int *) malloc(sizeof(int) * parkMap->P);
+    for(i = 0; i < parkMap->P; i++){
+        parkMap->Pn_av[i] = 0;
+    }
 
     /* initialize number of diferent access types to zero */
     parkMap->difS = 0;
@@ -544,6 +549,7 @@ void buildGraphs(Map *parkMap) {
                         break;
                     case 'x':
                         parkMap->n_av--;/* to counter-act next increment '.' */
+                        parkMap->Pn_av[p]--;
                         GdeactivateNode(Graph, toIndex(n,m,p,N,M,P));
 
                         /* don't break, continue through to case '.' to add
@@ -555,6 +561,7 @@ void buildGraphs(Map *parkMap) {
                         /* increase in number of available spots */
                         parkMap->n_spots++;
                         parkMap->n_av++;
+                        parkMap->Pn_av[n]++;
 
                         /* check for possibility of edge with neighbours */
                         /* 
@@ -990,6 +997,7 @@ void clearSpotCoordinates(Map *parkMap, int x, int y, int z){
     GactivateNode(parkMap->Graph, toIndex(x, y, z, parkMap->N, parkMap->M
                                                  , parkMap->P));
     parkMap->n_av++;
+    parkMap->Pn_av[z]++;
     return;
 }
 
@@ -1006,6 +1014,8 @@ void clearSpotIDandWrite(FILE *fp, Map *parkMap, char *ID, int time){
                                 toCoordinateY(node, N, M, P),
                                 toCoordinateZ(node, N, M, P),
                                 's');
+    parkMap->n_av++;
+    parkMap->Pn_av[ toCoordinateZ(node, N, M, P) ]++;
     return;
 }
 
@@ -1088,6 +1098,7 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
             GdeactivateNode(parkMap->Graph, i);
             HTinsert(parkMap->pCars, i, ID);
             parkMap->n_av--;
+            parkMap->Pn_av[ toCoordinateZ(i, parkMap->N, parkMap->M, parkMap->P)]--;
             break;
         }
     }
@@ -1130,8 +1141,10 @@ void restrictMapCoordinate(Map *parkMap, int x, int y, int z){
     P = parkMap->P;
 
     /* if restricting a parking spot, decrease num of available spots */
-    if(parkMap->mapRep[x][y][z] == '.')
+    if(parkMap->mapRep[x][y][z] == '.'){
         parkMap->n_av--;
+        parkMap->Pn_av[z]--;
+    }
 
     /* deactive car path node */
     GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
@@ -1174,8 +1187,10 @@ void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z){
     P = parkMap->P;
 
     /* if freeing a parking spot, increase num of available spots */
-    if(parkMap->mapRep[x][y][z] == '.')
+    if(parkMap->mapRep[x][y][z] == '.'){
         parkMap->n_av++;
+        parkMap->Pn_av[z]++;
+    }
 
     /* activate car path node */
     GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P));
@@ -1239,6 +1254,9 @@ void restrictMapFloor(Map *parkMap, int floor){
         GdeactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P) + N*M*P);
         floorRamps = getNextNodeLinkedList(floorRamps);
     }
+    
+    /* decrease number of available places */
+    parkMap->n_av -= parkMap->Pn_av[floor];
     return;
 }
 
@@ -1296,8 +1314,14 @@ void freeRestrictionMapFloor(Map *parkMap, int floor){
         GactivateNode(parkMap->Graph, toIndex(x, y, z, N, M, P) + N*M*P);
         floorRamps = getNextNodeLinkedList(floorRamps);
     }
+
+    parkMap->n_av += parkMap->Pn_av[floor];
     return;
 }      
+
+int isParkFull(Map *parkMap){
+    return parkMap->n_av > 0 ? 0 : 1;
+}
             
 
 /*
