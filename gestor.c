@@ -258,7 +258,7 @@ int main(int argc, char* argv[]) {
         o = (Order *) getItemLinkedList(t);
         switch (o->action){
             case 'E':
-                if(isQueueEmpty(Q) == 1){
+                if( (isQueueEmpty(Q) == 1) && (isParkFull(parkMap) == 0) ){
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
                     if(st == NULL){
                         escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 'i');
@@ -295,7 +295,7 @@ int main(int argc, char* argv[]) {
                 }
                 
                 /* if this is the last unrestriction for this exact time */
-                if(isQueueEmpty(Q) == 0){
+                if( (isQueueEmpty(Q) == 0) && (isParkFull(parkMap) == 0) ){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
@@ -327,7 +327,7 @@ int main(int argc, char* argv[]) {
 
                 }
 
-                if(isQueueEmpty(Q) == 0){
+                if( (isQueueEmpty(Q) == 0) && (isParkFull(parkMap) == 0) ){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
@@ -361,7 +361,7 @@ int main(int argc, char* argv[]) {
 
                 }
 
-                while(isQueueEmpty(Q) == 0){
+                while( (isQueueEmpty(Q) == 0) && (isParkFull(parkMap) == 0) ){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
@@ -397,7 +397,7 @@ int main(int argc, char* argv[]) {
 
                 }
 
-                while(isQueueEmpty(Q) == 0){
+                while( (isQueueEmpty(Q) == 0) && (isParkFull(parkMap) == 0) ){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
                     st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
