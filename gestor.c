@@ -32,7 +32,7 @@ void OrderDestroy(Item order){
     
 
 void Usage(){
-    fprintf(stderr, "Usage:\n\t./gestor <parque.cfg> <entranceID> <accessDesc>\n");
+    fprintf(stderr, "Usage:\n\t./gestor <parque.cfg> <parque.inp> [parque.res]\n");
     return;
 }
 
@@ -133,7 +133,7 @@ LinkedList *loadRestrictionFile(char *resfile){
                 order->x = x; order->y = y; order->z = z;
                 t = insertUnsortedLinkedList(t, (Item) order);
 
-                if(tb != 0){
+                if(tb >= ta){
                     order = (Order *) malloc(sizeof(Order));
                     order->action = 'r';
                     order->type = ' ';
@@ -142,7 +142,7 @@ LinkedList *loadRestrictionFile(char *resfile){
                     order->x = x; order->y = y; order->z = z;
                     t = insertUnsortedLinkedList(t, (Item) order);
                 }
-            } else if(inpRead == 4){
+            } else if(inpRead == 4){   /* if it's a floor type restriction */
                 order = (Order *) malloc(sizeof(Order));
                 order->action = 'P';
                 order->type = ' ';
@@ -152,7 +152,7 @@ LinkedList *loadRestrictionFile(char *resfile){
                 order->id = NULL;
 
                 t = insertUnsortedLinkedList(t, (Item) order);
-                if(tb != 0){
+                if(tb >= ta){
                     order = (Order *) malloc(sizeof(Order));
                     order->action = 'p';
                     order->type = ' ';
