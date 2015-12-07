@@ -203,11 +203,11 @@ int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ) {
          */
         if(hP == dest || wt[hP] == NOCON)
             break;
-        /* ignore if node is an inactive node */
-        if(G->active[hP] == 0)
-            continue;
         for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
             e = getItemLinkedList(t);
+            /* ignore if node is an inactive node */
+            if(G->active[ e->w] == 0)
+                continue;
             if( wt[ e->w ] > wt[hP] + e->value) {
                 wt[ e->w ] = wt[hP] + e->value;
                 PQupdateNode(PQ, e->w);
