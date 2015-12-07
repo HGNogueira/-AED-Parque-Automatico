@@ -275,6 +275,8 @@ void restrictMapFloor(Map *parkMap, int floor);
 
 void freeRestrictionMapFloor(Map *parkMap, int floor);
 
+int isParkFull(Map *parkMap);
+
 
 /*
  *  Functions:
