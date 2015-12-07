@@ -137,7 +137,7 @@ void FixDown(PrioQ *PQ, int heapIndex) {
         if( j + 1 < N) {
             /* check for the smallest weighted son */
             if( wt[ heap[j] ] <= wt[ heap[j + 1]]) {
-                if( wt[heap[i]] >= wt[heap[j]]) {
+                if( wt[heap[i]] > wt[heap[j]]) {
                     aux = heap[j];
 
                     heap[j] = heap[i];
@@ -150,7 +150,7 @@ void FixDown(PrioQ *PQ, int heapIndex) {
                 }
             }
             else{
-                if( wt[heap[i]] >= wt[heap[j + 1]]) {
+                if( wt[heap[i]] > wt[heap[j + 1]]) {
                     aux = heap[j + 1];
 
                     heap[j + 1] = heap[i];
@@ -168,7 +168,7 @@ void FixDown(PrioQ *PQ, int heapIndex) {
         /* if it has only one son */
         else{
             /* is that son smaller ?*/
-            if( wt[heap[i]] >= wt[heap[j]]) {
+            if( wt[heap[i]] > wt[heap[j]]) {
                 aux = heap[j];
 
                 heap[j] = heap[i];
