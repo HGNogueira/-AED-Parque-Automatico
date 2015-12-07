@@ -345,18 +345,6 @@ void buildGraphs(Map *parkMap) {
                          * belongs in a set of forbidden chars
                          */
 
-                        
-                        /* LEFT */
-                        if(n > 0){
-                            if( strchr("@exa.", (int) LEFT) == NULL){
-                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n-1,m,p,N,M,P), 1);
-                            } 
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
-                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
-                                    toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
-                            } 
-                        }
                         /* TOP */
                         if(m < M - 1){
                             if( strchr("@exa.", (int) TOP) == NULL){
@@ -366,17 +354,6 @@ void buildGraphs(Map *parkMap) {
                             if( strchr("@xe.", (int) BOTTOM) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
-                            } 
-                        }
-                        /* RIGHT */
-                        if(n < N - 1){
-                            if( strchr("@exa.", (int) RIGHT) == NULL){
-                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
-                                        toIndex(n+1,m,p,N,M,P), 1);
-                            } 
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
-                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
-                                    toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
                             } 
                         }
                         /* BOTTOM */
@@ -390,7 +367,29 @@ void buildGraphs(Map *parkMap) {
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                             } 
                         }
-                          
+                        /* LEFT */
+                        if(n > 0){
+                            if( strchr("@exa.", (int) LEFT) == NULL){
+                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n-1,m,p,N,M,P), 1);
+                            } 
+                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                                    toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
+                            } 
+                        }
+                        /* RIGHT */
+                        if(n < N - 1){
+                            if( strchr("@exa.", (int) RIGHT) == NULL){
+                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
+                                        toIndex(n+1,m,p,N,M,P), 1);
+                            } 
+                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                                    toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
+                            } 
+                        }
+                        
                         /* connect car path with upper floor */
                         GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p + 1,N,M,P), 2);
@@ -422,17 +421,8 @@ void buildGraphs(Map *parkMap) {
                          * belongs in a set of forbidden chars
                          */
 
-                        /* LEFT */
-                        if(n > 0){
-                            if( strchr("@exa.", (int) LEFT) == NULL){
-                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
-                                        toIndex(n-1,m,p,N,M,P), 1);
-                            } 
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
-                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
-                                    toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
-                            }
-                        }
+                    
+                        
                         /* TOP */
                         if(m < M -1){
                             if( strchr("@exa.", (int) TOP) == NULL){
@@ -445,17 +435,6 @@ void buildGraphs(Map *parkMap) {
                             } 
 
                         }
-                        /* RIGHT */
-                        if(n < N - 1){
-                            if( strchr("@exa.", (int) RIGHT) == NULL){
-                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
-                                        toIndex(n+1,m,p,N,M,P), 1);
-                            }
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
-                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
-                                    toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
-                            }  
-                        }
                         /* BOTTOM */
                         if(m > 0){
                             if( strchr("@exa.", (int) BOTTOM) == NULL){
@@ -467,6 +446,30 @@ void buildGraphs(Map *parkMap) {
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                             }
                         }
+                        
+                        /* LEFT */
+                        if(n > 0){
+                            if( strchr("@exa.", (int) LEFT) == NULL){
+                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
+                                        toIndex(n-1,m,p,N,M,P), 1);
+                            } 
+                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                                    toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
+                            }
+                        }
+                        /* RIGHT */
+                        if(n < N - 1){
+                            if( strchr("@exa.", (int) RIGHT) == NULL){
+                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
+                                        toIndex(n+1,m,p,N,M,P), 1);
+                            }
+                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                                GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                                    toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
+                            }  
+                        }
+                        
 
 
                         /* connect car path with lower floor */
@@ -495,6 +498,17 @@ void buildGraphs(Map *parkMap) {
                          */
                         
                         
+                        
+                        /* BOTTOM */
+                        if( strchr("@ea", (int) BOTTOM) == NULL){
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
+                                    toIndex(n,m-1,p,N,M,P), 1);
+                        } 
+                        /*insert in peon path by adding N*M*P to index */
+                        if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
+                                    toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
+                        }
                         /* RIGHT */
                         if( strchr("@ea", (int) RIGHT) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
@@ -515,16 +529,6 @@ void buildGraphs(Map *parkMap) {
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                         }
-                        /* BOTTOM */
-                        if( strchr("@ea", (int) BOTTOM) == NULL){
-                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
-                                    toIndex(n,m-1,p,N,M,P), 1);
-                        } 
-                        /*insert in peon path by adding N*M*P to index */
-                        if( strchr("@xe.", (int) BOTTOM) == NULL){
-                            GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
-                                    toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
-                        }
                         /* TOP */
                         if( strchr("@ea", (int) TOP) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
@@ -535,6 +539,7 @@ void buildGraphs(Map *parkMap) {
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                         }
+                        
                                                
                         break;
                     case 'x':
