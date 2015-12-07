@@ -5,6 +5,15 @@
 #include"defs.h"
 #include"prioQ.h"
 
+typedef struct _action{
+    int node;
+    int wt;
+} action;
+
+void actionDestroy(Item act){
+    free((action *) act);
+}
+
 struct _edge{
     int v;
     int w;
@@ -169,10 +178,30 @@ int GisNodeActive(GraphL *g, int v){
     return g->active[v];
 }
 
+void GDijkstraCleanToPark(GraphL *G, Map *parkMap, LinkedList *actions, int *st,
+                                            int *wt, PrioQ *PQ, int cleanDest){
+    action *a;
+    LinkedList *t;
+
+    t = actions;
+    while(t != NULL){ 
+        a = (action *) getItemLinkedList(t);
+        wt[ a->node ] = a->wt;
+        PQReinsert(PQ, a->node);
+        if(a->node == cleanDest)
+            break;
+        t = getNextNodeLinkedList(t);
+    }
+
+    freeLinkedList(actions, actionDestroy);
+
+    return;
+}
+
 
 /*
  *  Function:
- *    dijkstra
+ *    GDijkstra
  *
  *  Description:
  *    uses the Dijkstra algorithm to generate the shortest path tree starting
