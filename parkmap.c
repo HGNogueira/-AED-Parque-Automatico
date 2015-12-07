@@ -82,7 +82,7 @@ struct _map{
     int E, S;             /* num of entrances (E) and peon access points (S) */
     int difS;             /* num of different type of peon access points */
     int n_spots, n_av;    /* total number of spots, number of available */
-    int *Pn_av;            /* table with total number of spots per floor */
+    int *avalP;            /* table with total number of spots per floor */
 
     char ***mapRep; /* table of matrices to represent multiple floor map */
     Point **accessPoints; /* table of map access points */
@@ -145,9 +145,9 @@ Map *mapInit(char *filename) {
 
     parkMap->n_spots = 0;
     parkMap->n_av = 0;
-    parkMap->Pn_av = (int *) malloc(sizeof(int) * parkMap->P);
+    parkMap->avalP = (int *) malloc(sizeof(int) * parkMap->P);
     for(i = 0; i < parkMap->P; i++){
-        parkMap->Pn_av[i] = 0;
+        parkMap->avalP[i] = 0;
     }
 
     /* initialize number of diferent access types to zero */
@@ -549,7 +549,7 @@ void buildGraphs(Map *parkMap) {
                         break;
                     case 'x':
                         parkMap->n_av--;/* to counter-act next increment '.' */
-                        parkMap->Pn_av[p]--;
+                        parkMap->avalP[p]--;
                         GdeactivateNode(Graph, toIndex(n,m,p,N,M,P));
 
                         /* don't break, continue through to case '.' to add
@@ -561,7 +561,7 @@ void buildGraphs(Map *parkMap) {
                         /* increase in number of available spots */
                         parkMap->n_spots++;
                         parkMap->n_av++;
-                        parkMap->Pn_av[n]++;
+                        parkMap->avalP[p]++;
 
                         /* check for possibility of edge with neighbours */
                         /* 
@@ -997,7 +997,7 @@ void clearSpotCoordinates(Map *parkMap, int x, int y, int z){
     GactivateNode(parkMap->Graph, toIndex(x, y, z, parkMap->N, parkMap->M
                                                  , parkMap->P));
     parkMap->n_av++;
-    parkMap->Pn_av[z]++;
+    parkMap->avalP[z]++;
     return;
 }
 
@@ -1015,7 +1015,7 @@ void clearSpotIDandWrite(FILE *fp, Map *parkMap, char *ID, int time){
                                 toCoordinateZ(node, N, M, P),
                                 's');
     parkMap->n_av++;
-    parkMap->Pn_av[ toCoordinateZ(node, N, M, P) ]++;
+    parkMap->avalP[ toCoordinateZ(node, N, M, P) ]++;
     return;
 }
 
@@ -1098,7 +1098,7 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
             GdeactivateNode(parkMap->Graph, i);
             HTinsert(parkMap->pCars, i, ID);
             parkMap->n_av--;
-            parkMap->Pn_av[ toCoordinateZ(i, parkMap->N, parkMap->M, parkMap->P)]--;
+            parkMap->avalP[ toCoordinateZ(i, parkMap->N, parkMap->M, parkMap->P)]--;
             break;
         }
     }
@@ -1143,7 +1143,7 @@ void restrictMapCoordinate(Map *parkMap, int x, int y, int z){
     /* if restricting a parking spot, decrease num of available spots */
     if(parkMap->mapRep[x][y][z] == '.'){
         parkMap->n_av--;
-        parkMap->Pn_av[z]--;
+        parkMap->avalP[z]--;
     }
 
     /* deactive car path node */
@@ -1189,7 +1189,7 @@ void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z){
     /* if freeing a parking spot, increase num of available spots */
     if(parkMap->mapRep[x][y][z] == '.'){
         parkMap->n_av++;
-        parkMap->Pn_av[z]++;
+        parkMap->avalP[z]++;
     }
 
     /* activate car path node */
@@ -1256,7 +1256,7 @@ void restrictMapFloor(Map *parkMap, int floor){
     }
     
     /* decrease number of available places */
-    parkMap->n_av -= parkMap->Pn_av[floor];
+    parkMap->n_av -= parkMap->avalP[floor];
     return;
 }
 
@@ -1315,7 +1315,7 @@ void freeRestrictionMapFloor(Map *parkMap, int floor){
         floorRamps = getNextNodeLinkedList(floorRamps);
     }
 
-    parkMap->n_av += parkMap->Pn_av[floor];
+    parkMap->n_av += parkMap->avalP[floor];
     return;
 }      
 
@@ -1350,6 +1350,8 @@ void mapDestroy(Map *parkMap) {
     for(i = 0; i < parkMap->E; i++)
         pointDestroy((Item) parkMap->entrancePoints[i]);
     free(parkMap->entrancePoints);
+
+    free(parkMap->avalP);
 
     /* deallocate map representation matrices */
     if(parkMap->mapRep != NULL){
