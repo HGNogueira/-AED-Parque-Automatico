@@ -209,8 +209,8 @@ int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ, Map *pa
             break;
         /* check to see if it is a ramp */
         desc = getMapRepDesc(parkMap, hP);
-        prevDesc = getMapRepDesc(parkMap, hP);
         if( desc == 'u' || desc == 'd'){
+            prevDesc = getMapRepDesc(parkMap, hP);
             /* if previous was a ramp as well, we may go in all directions */
             if( prevDesc == 'u' || prevDesc == 'd'){
                 for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
