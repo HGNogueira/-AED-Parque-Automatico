@@ -1,4 +1,38 @@
+/*
+ *  Author: Beatriz Ferreira & Henrique Nogueira
+ *
+ *  Description: AED Project main program
+ *
+ *               Using parkmap.c module as a main resource, the program's function 
+ *          is to read inputs and automatically route cars entering a parking lot
+ *          according to their ideal paths.
+ *
+ *          To run you require 2 or 3 input files:
+ *              <configuration file> - contains the park's static configuration
+ *          details
+ *              <car input file> - contains information about arriving cars
+ *              <restriction file> (optional) - contains information about
+ *          applied restrictions.
+ *
+ *          This program mainly serves as a demonstration of the parkmap.c
+ *          module efficiency and quality
+ *
+ *  Implementation details:
+ *      The input and restriction files are read and listed in increasing time
+ *  order and then they are applied one by one by using the required functions
+ *  from parkmap
+ *      For implementation purposes it was created a struct order which just
+ *  contains any important information for each action to take
+ *
+ *  Version: 1.0
+ *
+ *  Change log: N/A
+ *
+ */
+
+
 #include<stdio.h>
+
 #include"parkmap.h"
 #include"point.h"
 #include"LinkedList.h"
@@ -195,12 +229,11 @@ LinkedList *inpresShuffleOrder(LinkedList *inpList, LinkedList *resList){
     return mergeOrderedLists(inpList, resList, compareOrderTime);
 }
 
-
 int main(int argc, char* argv[]) {
     Map *parkMap;
     LinkedList *inp, *res, *orders;
     LinkedList *t, *testT;
-    int time;
+    int time, stSize;
     Order *o, *testO;
     int cost, *st;
     FILE *fp;
@@ -259,13 +292,15 @@ int main(int argc, char* argv[]) {
         switch (o->action){
             case 'E':
                 if( (isQueueEmpty(Q) == 1) && (isParkFull(parkMap) == 0) ){
-                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, 
+                                                            &cost, &stSize);
                     if(st == NULL){
                         escreve_saida(fp, o->id, o->time, o->x, o->y, o->z, 'i');
                         Qpush(Q, (Item) o);
                     }
                     else{
-                        writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
+                        writeOutput(fp, parkMap, st, cost, o->time, o->id, 
+                                                            o->type, stSize);
                     }
                 }
                 else{
@@ -297,12 +332,13 @@ int main(int argc, char* argv[]) {
                 if( (isQueueEmpty(Q) == 0) && (isParkFull(parkMap) == 0) ){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
-                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost, &stSize);
                     if(st == NULL)
                         QpushFirst(Q, (Item) o);
                     else{
                         cost += time - o->time;
-                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
+                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, 
+                                                    o->type, o->time, stSize);
                     }
                 }
                 break;
@@ -328,12 +364,13 @@ int main(int argc, char* argv[]) {
                 if( (isQueueEmpty(Q) == 0) && (isParkFull(parkMap) == 0) ){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
-                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost, &stSize);
                     if(st == NULL)
                         QpushFirst(Q, (Item) o);
                     else{
                         cost += time - o->time;
-                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
+                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, 
+                                                    o->type, o->time, stSize);
                     }
                 }
                 break;
@@ -361,14 +398,15 @@ int main(int argc, char* argv[]) {
                 while( (isQueueEmpty(Q) == 0) && (isParkFull(parkMap) == 0) ){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
-                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost, &stSize);
                     if(st == NULL){
                         QpushFirst(Q, (Item) o);
                         break;
                     }
                     else{
                         cost += time - o->time; /* add additional cost for waiting */
-                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
+                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, 
+                                                    o->type, o->time, stSize);
                     }
                 }
                 break;
@@ -396,14 +434,15 @@ int main(int argc, char* argv[]) {
                 while( (isQueueEmpty(Q) == 0) && (isParkFull(parkMap) == 0) ){
                     time = o->time;   /* to update order time */
                     o = (Order *) Qpop(Q);
-                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost);
+                    st = findPath(parkMap, o->id, o->x, o->y, o->z, o->type, &cost, &stSize);
                     if(st == NULL){
                         QpushFirst(Q, (Item) o);
                         break;
                     }
                     else{
                         cost += time - o->time;
-                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
+                        writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, 
+                                                    o->type, o->time, stSize);
                     }
                 }
                 break;
