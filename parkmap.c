@@ -29,9 +29,13 @@
 #include<string.h>
 
 
+/* globally defined buffer size */
 #define SIZE 256
+/* globally defined number of diferent ASCII chars */
 #define CHARSIZE 256
+/* globally defined hash calculation P constant */
 #define HASHCONSTANT 17
+
     /* toIndex - macro to convert coordinates into an 1 dimensional index
      *
      * a - column
@@ -42,37 +46,21 @@
      * C - num of floors
      */
 #define toIndex(a,b,c,A,B,C) a + (A)*(b) + (A)*(B)*(c) 
+
+/* toCoordinate macros, inverse of the latter one */
 #define toCoordinateX(n,X,Y,Z) ((n)%(X))
 #define toCoordinateY(n,X,Y,Z) ((n % ((X)*(Y)*(Z))) % ((X)*(Y))) / (X)
 #define toCoordinateZ(n,X,Y,Z) ( (n % ((X)*(Y)*(Z))) / ((X)*(Y)) )
-
-
-
-/*
- *  Internal Data Type: Restriction
- *
- *  Description: 
- *      Characterizes a certain restriction given by the client, this can be 
- *  applied on a whole floor or just a certain coordinate
- *
- */
-
-typedef struct _restriction{
-    int ta;
-    int tb;
-    int floor;             /* indicates restricted floor, -1 if not applied */
-    int x, y, z;           /* restricted coordinates, uninitialized if 
-                            * not applied */
-
-} Restriction;
 
 
 /*
  *  Data Type: Map
  *
  *  Description: 
- *      Structure with information on the park configuration, including its 
- *  graph representation
+ *      Most fundamental struct of the program, contains all information with 
+ *  direct connection to the present parkMap configuration including its
+ *  graph (if calculated through buildGraph function) and all the fields required
+ *  to calculate an ideal path
  *
  */
 
@@ -81,28 +69,56 @@ struct _map{
     int P;                /* num of floors */
     int E, S;             /* num of entrances (E) and peon access points (S) */
     int difS;             /* num of different type of peon access points */
-    int n_spots, n_av;    /* total number of spots, number of available */
-    int *avalP;            /* table with total number of spots per floor */
+    int n_spots, n_av;    /* total number of spots; number of available ones */
+    int *avalP;           /* table with total number of free spots per floor */
 
-    char ***mapRep; /* table of matrices to represent multiple floor map */
+    /* table of matrices to represent multiple floor map 
+     * mapRep[x][y][z] indicates the descriptive character of that position
+     */
+    char ***mapRep; 
+
     Point **accessPoints; /* table of map access points */
     Point **entrancePoints; /* table of map entrance points */
 
     int *accessTable; /* lookup table for accesspoints descriptors */
-    LinkedList *accessTypes;  /* lookup table with acccess Type descriptors
-                                 to save some sort of order */
+    LinkedList *accessTypes;  /* a list with all different types of character
+                                 descriptors for existing access Points */
 
-    LinkedList **ramps; /* table to save ramp Points, index corresponds
+    LinkedList **ramps;   /* table to save ramp Points, index corresponds
                            to the floor */
 
-    HashTable *pCars;            /* Hash table with information about parked
+    HashTable *pCars;     /* Hash table with information about parked
                                     cars*/
+
+    int lastEntrance, lastAccess;
+
     /* pre-initialized dijkstra vectors */
     int *st;
     int *wt;
     PrioQ *PQ;
 
-    GraphL *Graph;               /* car and pedestrian graph */
+    /* park configuration graph
+     * has an adjacency matrix representation of a directed weighted graph
+     *
+     * first N*M*P nodes will correspond to the car path, meaning the path that
+     * the person has to take in its car
+     *
+     * second half of N*M*P nodes correspond to the peon path, meaning the path
+     * that the person has to do by walking
+     *
+     * after those 2*N*M*P nodes come X nodes, one for each different type of
+     * access. This is important because the mother nodes of each access will 
+     * be using this nodes. The mother nodes are abstract places in the parking
+     * lot that you may get through any of the corresponding accesses for free.
+     * 
+     * Example:
+     *      'a' has coordinates (3, 6, 0)
+     *      That access is of type 'C'
+     *      Then, there will be only one edge coming out of that node pointing
+     *  at the mother node of type 'C'
+     *
+     */
+    GraphL *Graph;               
 };
 
 
@@ -112,6 +128,9 @@ struct _map{
  *  Description:
  *      Reads a map configuration file and saves information into its map 
  *  structure
+ *  
+ *      Note that some of the fields aren't initialized until Graph is build and 
+ *  this is a prerequesite for applying that function to the graph.
  *
  *  Arguments:
  *      string with the name of the map configuration file
@@ -125,11 +144,11 @@ struct _map{
 
 Map *mapInit(char *filename) {
     FILE *fp;
-    int it;
-    Map *parkMap; 
-    int n, m, p, i;                               /* iteration variables */
+    int it;                                    
+    Map *parkMap;                              /* pointer to fill and return */
+    int n, m, p, i;                            /* iteration variables */
     char auxChar, desc, *auxPChar;             /* auxiliary chars */
-    char ID[SIZE]; /* auxiliary strings */
+    char ID[SIZE];                             /* buffer string */
     int x, y, z;                               /* point coordinate values */
     int atE = 0, atA = 0;                      /* control variables for access 
                                                 and entrance tables */
@@ -241,6 +260,9 @@ Map *mapInit(char *filename) {
     }
 
     fclose(fp);
+
+    parkMap->lastEntrance = -1;
+    parkMap->lastAccess = -1;
 
    
 
@@ -843,7 +865,6 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     /* write terminating line */
     escreve_saida(fp, ID, TIME[0], TIME[1], TIME[2], cost, 'x');
 
-    PQreset(parkMap->PQ, parkMap->st, parkMap->wt, Gnodes(parkMap->Graph));
 
     free(path);
     return;
@@ -944,7 +965,6 @@ void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
 
     free(path);
 
-    PQreset(parkMap->PQ, parkMap->st, parkMap->wt, Gnodes(parkMap->Graph));
 
     return;
 }
@@ -1030,19 +1050,22 @@ void clearSpotCoordinates(Map *parkMap, int x, int y, int z){
 
 void clearSpotIDandWrite(FILE *fp, Map *parkMap, char *ID, int time){
     int N, M, P;
+    int x, y, z;
     int node = HTget(parkMap->pCars, ID);
 
     N = parkMap->N;
     M = parkMap->M;
     P = parkMap->P;
+    x = toCoordinateX(node, N, M, P);
+    y = toCoordinateY(node, N, M, P);
+    z = toCoordinateZ(node, N, M, P);
 
     GactivateNode(parkMap->Graph, node);
-    escreve_saida(fp, ID, time, toCoordinateX(node, N, M, P),
-                                toCoordinateY(node, N, M, P),
-                                toCoordinateZ(node, N, M, P),
-                                's');
+    escreve_saida(fp, ID, time, x, y, z, 's');
+
+    parkMap->mapRep[x][y][z] = '.';
     parkMap->n_av++;
-    parkMap->avalP[ toCoordinateZ(node, N, M, P) ]++;
+    parkMap->avalP[ z ]++;
     return;
 }
 
@@ -1091,17 +1114,22 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
     wt = parkMap->wt;
     PQ = parkMap->PQ;
 
+    PQreset(PQ, st, wt, Gnodes(parkMap->Graph));
+
     /* set origin definitions and update PQ */
     wt[origin] = 0;
     PQupdateNode(PQ, origin);
 
+    /* update last calculation */
+    parkMap->lastEntrance = origin;
+    parkMap->lastAccess   = dest;
 
-    /* calculate Ideal path and get total cost */
-    *cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ, parkMap);
+    /* calculate Ideal path and get total cost, only if it hasnt been done */
+    if(st[dest] == -1)
+        *cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ, parkMap);
 
     /* if no path is encountered, return NULL pointer */
     if(st[dest] == -1){
-        PQreset(PQ, st, wt, Gnodes(parkMap->Graph));
         return NULL;
     }
 
