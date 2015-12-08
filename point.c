@@ -15,8 +15,8 @@
  */
 
 #include"point.h"
-#include"dbg.h"
 #include"defs.h"
+#include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
 
@@ -59,7 +59,6 @@ Point *newPoint(char *ID, char desc, int x, int y, int z) {
     int i;
 
     myPoint = (Point*) malloc(sizeof(Point));
-    check_mem(myPoint);
 
     idSize = strlen(ID);
     myPoint->id = (char*) malloc(sizeof(char) * idSize + 1);
@@ -110,20 +109,20 @@ char getDesc(Point *myPoint){
     return myPoint->desc;
 }
 
- /*
- *  function:
- *      pointPrintStd
- *  description:
- *      prints Point content field in pleasant way to stdout
- *
- *  arguments:
- *      pointer to struct point
- *  return value:
- *      void
- *
- *  secondary effects:
- *      none
- */
+/*
+*  Function:
+*      pointPrintStd
+*  description:
+*      prints Point content field in pleasant way to stdout
+*
+*  arguments:
+*      pointer to struct point
+*  return value:
+*      void
+*
+*  secondary effects:
+*      none
+*/
 
 void pointPrintStd(Point *myPoint) {
     fprintf(stdout, "%s %d %d %d %c\n", myPoint->id, myPoint->x, myPoint->y,
