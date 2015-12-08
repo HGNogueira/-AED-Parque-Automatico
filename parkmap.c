@@ -746,9 +746,32 @@ void mapPrintStd(Map *parkMap) {
 }
 
 
-void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, char accessType){
+/* 
+ * Function: writeOutput
+ *
+ * Description:
+ *      given a st origins vector in which it has been calculated an ideal path
+ *  this function will print out to the fp FILE in protocoled order indicating
+ *  every turning point and fundamental points in a given path
+ *
+ * Arguments:
+ *      FILE *fp - file to print
+ *      Map *parkMap - Map structure respective to the path
+ *      int *st - path vector
+ *      int cost - total cost of a path according to protocol metric system
+ *      int time - time indicating the beggining
+ *      char *ID - vehicle string identifier
+ *      char accessType - desired destiny of the vehicle
+ *      int pathSize - number of moves contained in a path
+ *  
+ *  Return value:
+ *      void
+ */
+
+void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
+                                                char accessType, int pathSize){
     int *path;
-    int i, pathSize, dest, j;
+    int i, dest, j;
     int N, M, P;
     int TIME[3];             /* array to save important times */
     int test = 0;            /* to test if at least 1 m or p is printed */
@@ -760,10 +783,6 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     P = parkMap->P;
 
     dest = parkMap->accessTable[ (int) accessType];
-
-    /* find size of path vector */
-    for(i = st[ dest ], pathSize = 0; st[i] != -1; i = st[i], pathSize++);
-    pathSize++;
 
     /* fill path vector with passby nodes
      * starts at the access point node and goes back until entrace is reached
@@ -848,10 +867,36 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     return;
 }
 
+
+/* 
+ * Function: writeOutputAfterIn
+ *
+ * Description:
+ *      given a st origins vector in which it has been calculated an ideal path
+ *  this function will print out to the fp FILE in protocoled order indicating
+ *  every turning point and fundamental points in a given path
+ *
+ *      Unlike the previous function, this one will only not include the first
+ *  moment when the vehicle enters the lot
+ *
+ * Arguments:
+ *      FILE *fp - file to print
+ *      Map *parkMap - Map structure respective to the path
+ *      int *st - path vector
+ *      int cost - total cost of a path according to protocol metric system
+ *      int time - time indicating the beggining
+ *      char *ID - vehicle string identifier
+ *      char accessType - desired destiny of the vehicle
+ *      int pathSize - number of moves contained in a path
+ *  
+ *  Return value:
+ *      void
+ */
+
 void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time, 
-        char *ID, char accessType, int origTime){
+                        char *ID, char accessType, int origTime, int pathSize){
     int *path;
-    int i, pathSize, dest, j;
+    int i, dest, j;
     int N, M, P;
     int TIME[3];             /* array to save important times */
     int test = 0;            /* to test if at least 1 m or p is printed */
@@ -863,10 +908,6 @@ void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
     P = parkMap->P;
 
     dest = parkMap->accessTable[ (int) accessType];
-
-    /* find size of path vector */
-    for(i = st[ dest ], pathSize = 0; st[i] != -1; i = st[i], pathSize++);
-    pathSize++;
 
     /* fill path vector with passby nodes
      * starts at the access point node and goes back until entrace is reached
@@ -1053,7 +1094,10 @@ void clearSpotIDandWrite(FILE *fp, Map *parkMap, char *ID, int time){
  *      findPath
  *
  *  Description:
- *      finds a path between two points and returns total cost
+ *      given the previously computated directed weighted graph accordding to
+ *  the given static map configuration (and all other events which modified the
+ *  graph ever since) this function will compute the ideal, lest costly (according
+ *  to protocol metrics) path bettween a source node and a destiny access type
  *
  *  Arguments:
  *      Map *parkmap - map configuration
@@ -1068,7 +1112,8 @@ void clearSpotIDandWrite(FILE *fp, Map *parkMap, char *ID, int time){
  *      none
  */
 
-int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, int *cost) {
+int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, 
+                                              int *cost, int *stSize) {
     int origin, dest; /* origin and destiny indexed variables */
     int *st, *wt;     /* path and weight tables */
     PrioQ *PQ;        /* priority queue */
@@ -1087,11 +1132,13 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
         fprintf(stderr, "There's no access with that type\n");
         exit(1);
     }
+    *stSize = 1;
 
     st = parkMap->st;
     wt = parkMap->wt;
     PQ = parkMap->PQ;
 
+    /* set PQ wt and st to original state without O(N) */
     PQreset(PQ, st, wt, Gnodes(parkMap->Graph));
 
     /* set origin definitions and update PQ */
@@ -1103,8 +1150,7 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
     parkMap->lastAccess   = dest;
 
     /* calculate Ideal path and get total cost, only if it hasnt been done */
-    if(st[dest] == -1)
-        *cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ, parkMap);
+    *cost = GDijkstra(parkMap->Graph, origin, dest, st, wt, PQ, parkMap);
 
     /* if no path is encountered, return NULL pointer */
     if(st[dest] == -1){
@@ -1119,10 +1165,10 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
             HTinsert(parkMap->pCars, i, ID);
             parkMap->n_av--;
             parkMap->avalP[ toCoordinateZ(i, parkMap->N, parkMap->M, parkMap->P)]--;
-            break;
         }
+        /* increment size of path */
+        *stSize = *stSize + 1;
     }
-
 
     return st;
 }
@@ -1133,7 +1179,7 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
  *      restrictMapCoordinate
  *  Description:
  *      breaks edges from a certain location in a map thus becoming unusable 
- *  when calculatin ideal path
+ *  when calculating ideal path
  *
  *  Arguments:
  *      Pointer to struct Map
@@ -1232,8 +1278,12 @@ void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z){
  *      none
  *
  *  Secondary effects:
- *      changes the internal graph of Map structure sent as argument by 
- *  deactivating fundamental floor nodes
+ *      this implementation will modify the (int *) active vector existent 
+ *  within the associated graph by deactivating any passageways to the exterior
+ *
+ *  these can be:
+ *      entrances
+ *      ramps
  */
 
 void restrictMapFloor(Map *parkMap, int floor){
@@ -1292,8 +1342,8 @@ void restrictMapFloor(Map *parkMap, int floor){
  *      none
  *
  *  Secondary effects:
- *      changes the internal graph of Map structure sent as argument through
- *  activation of fundamental floor nodes
+ *      will undo any changes previously made by restrictMapFloor in the given
+ *  floor
  */
 
 void freeRestrictionMapFloor(Map *parkMap, int floor){
