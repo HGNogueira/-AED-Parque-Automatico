@@ -269,9 +269,12 @@ int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ, Map *pa
         }
         for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
             e = getItemLinkedList(t);
-            if( wt[ e->w ] > wt[hP] + e->value) {
+            if( wt[ e->w ] >= wt[hP] + e->value) {
                 wt[ e->w ] = wt[hP] + e->value;
-                PQupdateNode(PQ, e->w);
+                if( e->w - hP == hP - st[hP])
+                    PQupdateNodeHighPrio(PQ, e->w);
+                else
+                    PQupdateNode(PQ, e->w);
                 st[e->w] = hP;
             }
         }
