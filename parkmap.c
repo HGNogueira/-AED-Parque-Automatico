@@ -812,7 +812,7 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     for(j += 2 ; j < pathSize - 1; j++){
         time++;
         /* check if peon is going through a ramp and add time if so */
-        if(  (path[j + 1] - path[j] == N*M) || (path[j] - path[j + 1] == N*M))
+        if(  (path[j - 1] - path[j] == N*M) || (path[j] - path[j - 1] == N*M))
             time++;
         /* check if node in index j corresponds to a turn in the path
          * if so this is an important point to consider and we must 
