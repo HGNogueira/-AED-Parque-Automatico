@@ -12,6 +12,7 @@ void PQReinsert(PrioQ *PQ, int node);
 int PQdelmin(PrioQ* PQ);
 
 void PQprintHeap(PrioQ* PQ);
+int isPQreset(PrioQ *PQ, int *st, int *wt, int realNodes);
 
 int PQisempty();
 void PQreset(PrioQ *PQ, int *st, int *wt, int realNodes);

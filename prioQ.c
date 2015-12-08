@@ -273,6 +273,24 @@ void PQprintHeap(PrioQ* PQ) {
     return;
 }
 
+int isPQreset(PrioQ *PQ, int *st, int *wt, int nodes){
+    int i = 0;
+
+    if(PQ->N != nodes)
+        return 0;
+    
+    for(i = 0; i < nodes; i++){
+        if(wt[i] != NOCON)
+            return 0;
+        if(st[i] != -1)
+            return 0;
+    }
+
+    return 1;
+}
+
+
+
  /* Functions:
   *     PQclean
   *     PQreset
