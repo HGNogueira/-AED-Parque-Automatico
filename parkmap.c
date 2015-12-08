@@ -336,7 +336,7 @@ void buildGraphs(Map *parkMap) {
                     case '@': break;
                     case 'u':
                         /* insert upper ramp in appropriate floor ramps list */
-                        auxRamp = newPoint("Ramp", 'u', n, m, p);
+                        auxRamp = newPoint("B", 'u', n, m, p);
                         parkMap->ramps[p] = insertUnsortedLinkedList(
                                                 parkMap->ramps[p], 
                                                 (Item) auxRamp);
@@ -411,7 +411,7 @@ void buildGraphs(Map *parkMap) {
                         break;
                     case 'd':
                         /* insert upper ramp in appropriate floor ramps list */
-                        auxRamp = newPoint("Ramp", 'd', n, m, p);
+                        auxRamp = newPoint("B", 'd', n, m, p);
                         parkMap->ramps[p] = insertUnsortedLinkedList(
                                                 parkMap->ramps[p], 
                                                 (Item) auxRamp);
@@ -583,22 +583,22 @@ void buildGraphs(Map *parkMap) {
                          */
 
                         /* LEFT */
-                        if( strchr("@xe.", (int) LEFT) == NULL){
+                        if( strchr("@xe.du", (int) LEFT) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                         }
                         /* TOP */
-                        if( strchr("@xe.", (int) TOP) == NULL){
+                        if( strchr("@xe.du", (int) TOP) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                         }
                         /* RIGHT */
-                        if( strchr("@xe.", (int) RIGHT) == NULL){
+                        if( strchr("@xe.du", (int) RIGHT) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
                         }
                         /* BOTTOM */
-                        if( strchr("@xe.", (int) BOTTOM) == NULL){
+                        if( strchr("@xe.du", (int) BOTTOM) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                         }
