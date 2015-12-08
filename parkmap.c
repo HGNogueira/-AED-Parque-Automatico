@@ -334,6 +334,8 @@ void buildGraphs(Map *parkMap) {
             for(n = 0; n < N; n++){
                 switch(parkMap->mapRep[n][m][p]){
                     case '@': break;
+                    case 'a': break;
+                    case 'e': break;
                     case 'u':
                         /* insert upper ramp in appropriate floor ramps list */
                         auxRamp = newPoint("B", 'u', n, m, p);
@@ -362,7 +364,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n,m+1,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                             } 
@@ -373,7 +375,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n,m-1,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                             } 
@@ -384,7 +386,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n-1,m,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                             } 
@@ -395,7 +397,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n+1,m,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
                             } 
@@ -440,7 +442,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n,m+1,p,N,M,P), 1);
                             }
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                             } 
@@ -452,7 +454,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n,m-1,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                             }
@@ -464,7 +466,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n-1,m,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                             }
@@ -475,7 +477,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n+1,m,p,N,M,P), 1);
                             }
-                            if( strchr("@xe.", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
                             }  
@@ -583,22 +585,22 @@ void buildGraphs(Map *parkMap) {
                          */
 
                         /* LEFT */
-                        if( strchr("@xe.du", (int) LEFT) == NULL){
+                        if( strchr("@xe.adu", (int) LEFT) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                         }
                         /* TOP */
-                        if( strchr("@xe.du", (int) TOP) == NULL){
+                        if( strchr("@xe.adu", (int) TOP) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                         }
                         /* RIGHT */
-                        if( strchr("@xe.du", (int) RIGHT) == NULL){
+                        if( strchr("@xe.adu", (int) RIGHT) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
                         }
                         /* BOTTOM */
-                        if( strchr("@xe.du", (int) BOTTOM) == NULL){
+                        if( strchr("@xe.adu", (int) BOTTOM) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                         }
@@ -780,7 +782,7 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     for(j = 1; path[j + 1] - path[j] != N*M*P; j++){
         time++;
         /* check if car is going through a ramp and add time if so */
-        if((path[j] - path[j - 1]) == N*M || (path[j - 1] - path[j]) == N*M)
+        if(((path[j] - path[j - 1]) == N*M) || ((path[j - 1] - path[j]) == N*M))
             time++;
         /* check if node in index j corresponds to a turn in the path
          * if so this is an important point to consider and we must 
@@ -810,7 +812,7 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     for(j += 2 ; j < pathSize - 1; j++){
         time++;
         /* check if peon is going through a ramp and add time if so */
-        if(  (path[j + 1] - path[j] || path[j] - path[j + 1]) == N*M)
+        if(  (path[j + 1] - path[j] == N*M) || (path[j] - path[j + 1] == N*M))
             time++;
         /* check if node in index j corresponds to a turn in the path
          * if so this is an important point to consider and we must 
@@ -879,7 +881,7 @@ void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
     for(j = 1; path[j + 1] - path[j] != N*M*P; j++){
         time++;
         /* check if car is going through a ramp and add time if so */
-        if((path[j] - path[j - 1]) == N*M || (path[j - 1] - path[j]) == N*M)
+        if((path[j] - path[j - 1] == N*M) || (path[j - 1] - path[j] == N*M))
             time++;
         /* check if node in index j corresponds to a turn in the path
          * if so this is an important point to consider and we must 
@@ -909,7 +911,7 @@ void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
     for(j += 2 ; j < pathSize - 1; j++){
         time++;
         /* check if peon is going through a ramp and add time if so */
-        if(  (path[j + 1] - path[j] || path[j] - path[j + 1]) == N*M)
+        if(  (path[j + 1] - path[j] == N*M ) || (path[j] - path[j + 1] == N*M))
             time++;
         /* check if node in index j corresponds to a turn in the path
          * if so this is an important point to consider and we must 
