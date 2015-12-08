@@ -585,22 +585,22 @@ void buildGraphs(Map *parkMap) {
                          */
 
                         /* LEFT */
-                        if( strchr("@xe.a", (int) LEFT) == NULL){
+                        if( strchr("@xe.adu", (int) LEFT) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                         }
                         /* TOP */
-                        if( strchr("@xe.a", (int) TOP) == NULL){
+                        if( strchr("@xe.adu", (int) TOP) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                         }
                         /* RIGHT */
-                        if( strchr("@xe.a", (int) RIGHT) == NULL){
+                        if( strchr("@xe.adu", (int) RIGHT) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
                         }
                         /* BOTTOM */
-                        if( strchr("@xe.a", (int) BOTTOM) == NULL){
+                        if( strchr("@xe.adu", (int) BOTTOM) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m-1,p,N,M,P) + N*M*P, 3);
                         }
