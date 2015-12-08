@@ -364,7 +364,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n,m+1,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) TOP) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                             } 
@@ -386,7 +386,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n-1,m,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) LEFT) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                             } 
@@ -397,7 +397,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n+1,m,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) RIGHT) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
                             } 
@@ -442,7 +442,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n,m+1,p,N,M,P), 1);
                             }
-                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) TOP) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n,m+1,p,N,M,P) + N*M*P, 3);
                             } 
@@ -466,7 +466,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n-1,m,p,N,M,P), 1);
                             } 
-                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) LEFT) == NULL){
                             GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n-1,m,p,N,M,P) + N*M*P, 3);
                             }
@@ -477,7 +477,7 @@ void buildGraphs(Map *parkMap) {
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                         toIndex(n+1,m,p,N,M,P), 1);
                             }
-                            if( strchr("@xe.a", (int) BOTTOM) == NULL){
+                            if( strchr("@xe.a", (int) RIGHT) == NULL){
                                 GinsertEdge(Graph, toIndex(n,m,p,N,M,P) + N*M*P,
                                     toIndex(n+1,m,p,N,M,P) + N*M*P, 3);
                             }  
@@ -1022,6 +1022,7 @@ int PgetP(Map *parkMap){
 void clearSpotCoordinates(Map *parkMap, int x, int y, int z){
     GactivateNode(parkMap->Graph, toIndex(x, y, z, parkMap->N, parkMap->M
                                                  , parkMap->P));
+    parkMap->mapRep[x][y][z] = '.';
     parkMap->n_av++;
     parkMap->avalP[z]++;
     return;
