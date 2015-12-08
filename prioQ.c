@@ -1,6 +1,7 @@
 #include"prioQ.h"
 #include<stdlib.h>
 #include<stdio.h>
+#include"graphL.h"
 
 struct _prioQ{
     int N;             /* number of elements in queue */
@@ -234,11 +235,11 @@ void PQprintHeap(PrioQ* PQ) {
   * initial state, avoiding the unnapropriate reinitialization for reusage
   */
 
-int PQclean(PrioQ *PQ, int *wt, int *st, int heapNode){
+void PQclean(PrioQ *PQ, int *wt, int *st, int heapNode){
     if(heapNode >= PQ->N)
-        return 0;
+        return;
     if(wt[PQ->heap[heapNode]] == NOCON)
-        return 0;
+        return;
     wt[PQ->heap[heapNode]] = NOCON;
     st[PQ->heap[heapNode]] = -1;
 
@@ -248,7 +249,6 @@ int PQclean(PrioQ *PQ, int *wt, int *st, int heapNode){
 
 void PQreset(PrioQ* PQ, int *st, int *wt, int realN){
     int i;
-    int clean = 0;
     for(i = PQ->N; i < realN; i++){
         wt[PQ->heap[i]] = NOCON;
         st[PQ->heap[i]] = -1;
