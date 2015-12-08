@@ -225,6 +225,41 @@ void PQprintHeap(PrioQ* PQ) {
     return;
 }
 
+ /* Functions:
+  *     PQclean
+  *     PQreset
+  *
+  * Description:
+  *     The following functions serve as a way to reset wt, st and PQ to their
+  * initial state, avoiding the unnapropriate reinitialization for reusage
+  */
+
+int PQclean(PrioQ *PQ, int *wt, int *st, int heapNode){
+    if(heapNode >= PQ->N)
+        return 0;
+    if(wt[PQ->heap[heapNode]] == NOCON)
+        return 0;
+    wt[PQ->heap[heapNode]] = NOCON;
+    st[PQ->heap[heapNode]] = -1;
+
+    PQclean(PQ, wt, st, 2*heapNode + 1);
+    PQclean(PQ, wt, st, 2*heapNode + 2);
+}
+
+void PQreset(PrioQ* PQ, int *st, int *wt, int realN){
+    int i;
+    int clean = 0;
+    for(i = PQ->N; i < realN; i++){
+        wt[PQ->heap[i]] = NOCON;
+        st[PQ->heap[i]] = -1;
+        PQ->N++;
+    }
+
+    PQclean(PQ, wt, st, 0);
+
+    return;
+}
+
 void PQdestroy(PrioQ* PQ){
     free(PQ->index);
     free(PQ->heap);
