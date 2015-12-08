@@ -16,7 +16,6 @@
 
 
 #include"parkmap.h"
-#include"dbg.h"
 #include"point.h"
 #include"graphL.h"
 #include"queue.h"
@@ -133,18 +132,18 @@ struct _map{
  *  this is a prerequesite for applying that function to the graph.
  *
  *  Arguments:
- *      string with the name of the map configuration file
- *          char *filename
+ *      char *filename string with the name of the map configuration file
+ *          
  *  Return value:
- *      none
+ *      Map * - generated Map 
  *
  *  Secondary effects:
  *      None
  */
 
 Map *mapInit(char *filename) {
-    FILE *fp;
-    int it;                                    
+    FILE *fp;                                  /* input file stream pointer */
+    int it;                                    /* fscanf tester */ 
     Map *parkMap;                              /* pointer to fill and return */
     int n, m, p, i;                            /* iteration variables */
     char auxChar, desc, *auxPChar;             /* auxiliary chars */
@@ -154,10 +153,8 @@ Map *mapInit(char *filename) {
                                                 and entrance tables */
 
     parkMap = (Map*) malloc(sizeof(Map));
-    check_mem(parkMap);      /* memory check debug macro */
 
     fp = fopen( filename, "r");
-    check_file(fp);          /* file check debug macro */                   
 
     it = fscanf(fp, "%d %d %d %d %d\n", &parkMap->N, &parkMap->M, &parkMap->P,
                 &parkMap->E, &parkMap->S);
@@ -166,6 +163,7 @@ Map *mapInit(char *filename) {
         exit(1);
     }
 
+    /* initialize parking spot counters */
     parkMap->n_spots = 0;
     parkMap->n_av = 0;
     parkMap->avalP = (int *) malloc(sizeof(int) * parkMap->P);
@@ -178,31 +176,35 @@ Map *mapInit(char *filename) {
 
     /* initializing representation matrices */
     parkMap->mapRep = (char***) malloc(sizeof(char**) * parkMap->N);
-    check_mem(parkMap->mapRep);
     for(n = 0; n < parkMap->N; n++) {
         parkMap->mapRep[n] = (char**) malloc(sizeof(char*) * parkMap->M);
-        check_mem(parkMap->mapRep[n]);
         for(m = 0; m < parkMap->M; m++){
             parkMap->mapRep[n][m] = (char*) malloc(sizeof(char) * parkMap->P);
-            check_mem(parkMap->mapRep[n][m]);
         }
     }
 
-    /* initialize access points and entrance points tables */
+    /* initialize access points and entrance points tables 
+     *
+     * to be filled with point structs for each entrance/access point
+     * */
     parkMap->accessPoints = (Point**) malloc(sizeof(Point*) * parkMap->S);
     parkMap->entrancePoints = (Point**) malloc(sizeof(Point*) * parkMap->E);
 
     /* initialize auxiliar accessPoint variables
      * accessTable has size CHARSIZE for it must be able to house any index
-     * in (int) char
+     * in (int) char (ASCII)
      * 
      * it is initialized to -1 to check if it has been accessed (usefull further
      * down when trying to figure out number of diferent types)
+     *
+     * accessTypes LinkedList in the other hand will hold each different type of
+     * acces type descriptor character
      */
     parkMap->accessTable = (int *) malloc(sizeof(int) * CHARSIZE);
     for(i = 0; i < CHARSIZE; i++)
         parkMap->accessTable[i] = -1;
     parkMap->accessTypes = initLinkedList();
+
     /* start reading rest of file */
     for(p = 0; p < parkMap->P; p++) {
         /* read first m lines starting from beggining of floor contruction */
@@ -224,6 +226,7 @@ Map *mapInit(char *filename) {
                         fprintf(stderr, "Entrance line has wrong format\n");
                         exit(1);
                     }
+                    /* save information in entrance Points table */
                     parkMap->entrancePoints[atE] = newPoint(ID, desc, x, y, z);
                     ID[0] = '\0';
                     atE++;
@@ -235,6 +238,7 @@ Map *mapInit(char *filename) {
                         fprintf(stderr, "Access line has wrong format\n");
                         exit(1);
                     }
+                    /* save information in access points  table */
                     parkMap->accessPoints[atA] = newPoint(ID, desc, x, y, z);
                     ID[0] = '\0';
 
@@ -264,19 +268,20 @@ Map *mapInit(char *filename) {
     parkMap->lastEntrance = -1;
     parkMap->lastAccess = -1;
 
-   
-
     return parkMap;
 }               
 
+
 /*
  *  Function:
- *      generateGraphs
+ *      buildGraphs
  *  Description:
- *      generates pedestrian and car graph with list representation
+ *      uses the previously built representation Matrix (mapRep) to compute the
+ *  parkmap directed weighted graph
  *
  *  Arguments:
  *      Pointer to struct Map
+ *
  *  Return value:
  *      none
  *
@@ -336,10 +341,7 @@ void buildGraphs(Map *parkMap) {
     
     /* start computing using the representation matrix
      *
-     * n will go from 1 to N - 2 to ignore walls
-     * m will go from 1 to M - 2 to ignore walls
-     *
-     * later we will go over the entrance points
+     * later we will go over the entrance and access points
      * to complete the graph
      * 
      * wont need to go over access points because they are just incident nodes
@@ -357,7 +359,7 @@ void buildGraphs(Map *parkMap) {
                 switch(parkMap->mapRep[n][m][p]){
                     case '@': break;
                     case 'a': break;
-                    case 'e': break;
+                    case 'e': break;   /* will compute afterwords seperately */
                     case 'u':
                         /* insert upper ramp in appropriate floor ramps list */
                         auxRamp = newPoint("B", 'u', n, m, p);
@@ -440,7 +442,6 @@ void buildGraphs(Map *parkMap) {
                                                 parkMap->ramps[p], 
                                                 (Item) auxRamp);
 
-                        
                         /* check for possibility of edge with neighbours */
                         /* 
                          * only eligible for cars
@@ -455,8 +456,6 @@ void buildGraphs(Map *parkMap) {
                          * used in order to check if a character 
                          * belongs in a set of forbidden chars
                          */
-
-                    
                         
                         /* TOP */
                         if(m < M -1){
@@ -505,8 +504,6 @@ void buildGraphs(Map *parkMap) {
                             }  
                         }
                         
-
-
                         /* connect car path with lower floor */
                         GinsertEdge(Graph, toIndex(n,m,p,N,M,P),
                                     toIndex(n,m,p - 1,N,M,P), 2);
@@ -664,7 +661,7 @@ void buildGraphs(Map *parkMap) {
                         toIndex(x,y+1,z,N,M,P), 1);
     }
 
-    /* connect each of the access points to the its special type node */
+    /* connect each of the access points to its special type node */
     for(i = 0; i < parkMap->S; i++) {
         auxAccess = parkMap->accessPoints[i];
         /* inserting edge on node correspondent to the access point 
@@ -694,6 +691,7 @@ void buildGraphs(Map *parkMap) {
     /* initialize priority queue, posterior function requirement */
     parkMap->PQ = PQinit(parkMap->wt, Gnodes(parkMap->Graph));
 
+    /* undefine global macros */
     #undef LEFT
     #undef RIGHT
     #undef BOTTOM
@@ -701,7 +699,6 @@ void buildGraphs(Map *parkMap) {
 
     return;
 }
-
 
 
 /*
@@ -716,7 +713,7 @@ void buildGraphs(Map *parkMap) {
  *      none
  *
  *  Secondary effects:
- *      Writes to stdout
+ *      prints to stdout
  */
 
 void mapPrintStd(Map *parkMap) {
@@ -748,25 +745,6 @@ void mapPrintStd(Map *parkMap) {
     return;
 }
 
-
-/*
- *  Function:
- *    getAccessPoints
- *
- *  Description:
- *    returns the int identifier of the special access type node
- *
- *  Arguments:
- *    Map *parkMap - configuration map
- *    char desc - access type descriptor character
- *
- *  Return value:
- *    int - number of node
- */
-
-int getAccessTypeNode(Map *parkMap, char desc){
-    return parkMap->accessTable[ (int) desc];
-}
 
 void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, char accessType){
     int *path;
