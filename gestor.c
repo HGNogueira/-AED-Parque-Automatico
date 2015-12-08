@@ -266,7 +266,6 @@ int main(int argc, char* argv[]) {
                     }
                     else{
                         writeOutput(fp, parkMap, st, cost, o->time, o->id, o->type);
-                        free(st);
                     }
                 }
                 else{
@@ -304,7 +303,6 @@ int main(int argc, char* argv[]) {
                     else{
                         cost += time - o->time;
                         writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
-                        free(st);
                     }
                 }
                 break;
@@ -336,7 +334,6 @@ int main(int argc, char* argv[]) {
                     else{
                         cost += time - o->time;
                         writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
-                        free(st);
                     }
                 }
                 break;
@@ -372,7 +369,6 @@ int main(int argc, char* argv[]) {
                     else{
                         cost += time - o->time; /* add additional cost for waiting */
                         writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
-                        free(st);
                     }
                 }
                 break;
@@ -408,7 +404,6 @@ int main(int argc, char* argv[]) {
                     else{
                         cost += time - o->time;
                         writeOutputAfterIn(fp, parkMap, st, cost, time, o->id, o->type, o->time);
-                        free(st);
                     }
                 }
                 break;

@@ -97,6 +97,10 @@ struct _map{
 
     HashTable *pCars;            /* Hash table with information about parked
                                     cars*/
+    /* pre-initialized dijkstra vectors */
+    int *st;
+    int *wt;
+    PrioQ *PQ;
 
     GraphL *Graph;               /* car and pedestrian graph */
 };
@@ -237,6 +241,8 @@ Map *mapInit(char *filename) {
     }
 
     fclose(fp);
+
+   
 
     return parkMap;
 }               
@@ -651,6 +657,19 @@ void buildGraphs(Map *parkMap) {
     /* initializing hastable with m = n_spots and p = 17 (prime number) */
     parkMap->pCars = HTinit(parkMap->n_spots, 17);  
 
+    /* pre-Initialize weight and path tables, posterior function requirement */
+    parkMap->st = (int*) malloc(sizeof(int) * Gnodes(parkMap->Graph));
+    parkMap->wt = (int*) malloc(sizeof(int) * Gnodes(parkMap->Graph));
+
+    /* load desired values onto tables */
+    for(i = 0; i < Gnodes(parkMap->Graph); i++) {
+        parkMap->st[i] = -1;
+        parkMap->wt[i] = NOCON;
+    }
+
+    /* initialize priority queue, posterior function requirement */
+    parkMap->PQ = PQinit(parkMap->wt, Gnodes(parkMap->Graph));
+
     #undef LEFT
     #undef RIGHT
     #undef BOTTOM
@@ -822,6 +841,8 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
     /* write terminating line */
     escreve_saida(fp, ID, TIME[0], TIME[1], TIME[2], cost, 'x');
 
+    PQreset(parkMap->PQ, parkMap->st, parkMap->wt, Gnodes(parkMap->Graph));
+
     free(path);
     return;
 }
@@ -920,6 +941,9 @@ void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
     escreve_saida(fp, ID, TIME[0], TIME[1], TIME[2], cost, 'x');
 
     free(path);
+
+    PQreset(parkMap->PQ, parkMap->st, parkMap->wt, Gnodes(parkMap->Graph));
+
     return;
 }
 
@@ -1060,19 +1084,9 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
         exit(1);
     }
 
-
-    /* pre-Initialize weight and path tables, posterior function requirement */
-    st = (int*) malloc(sizeof(int) * Gnodes(parkMap->Graph));
-    wt = (int*) malloc(sizeof(int) * Gnodes(parkMap->Graph));
-
-    /* load desired values onto tables */
-    for(i = 0; i < Gnodes(parkMap->Graph); i++) {
-        st[i] = -1;
-        wt[i] = NOCON;
-    }
-
-    /* initialize priority queue, posterior function requirement */
-    PQ = PQinit(wt, Gnodes(parkMap->Graph));
+    st = parkMap->st;
+    wt = parkMap->wt;
+    PQ = parkMap->PQ;
 
     /* set origin definitions and update PQ */
     st[origin] = -1;
@@ -1085,9 +1099,7 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
 
     /* if no path is encountered, return NULL pointer */
     if(st[dest] == -1){
-        free(wt);
-        PQdestroy(PQ);
-        free(st);
+        PQreset(PQ, st, wt, Gnodes(parkMap->Graph));
         return NULL;
     }
 
@@ -1103,8 +1115,6 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
         }
     }
 
-    free(wt);
-    PQdestroy(PQ);
 
     return st;
 }
@@ -1374,6 +1384,13 @@ void mapDestroy(Map *parkMap) {
 
     freeLinkedList(parkMap->accessTypes, free);
     free(parkMap->accessTable);
+
+    if(parkMap->st != NULL)
+        free(parkMap->st);
+    if(parkMap->wt != NULL)
+        free(parkMap->wt);
+    if(parkMap->PQ != NULL)
+        PQdestroy(parkMap->PQ);
 
     if(parkMap->pCars != NULL)
         HTdestroy(parkMap->pCars);
