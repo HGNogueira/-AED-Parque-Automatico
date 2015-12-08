@@ -989,14 +989,17 @@ void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
 }
 
 
- /* Function:
+ /* Functions:
   *     getMapRepDesc
+  *     PgetN
+  *     PgetM
+  *     PgetP
   * Description:
-  *     returns the character descriptor of the given node
+  *     self explanatory getter functions
   *
   * Arguments:
   *     Map *parkMap - configuration Map
-  *     int node - respective node
+  *     int node - respective node  (getMapRepDesc)
   *
   * Return value:
   *     char - respective character descriptor of the map representation
