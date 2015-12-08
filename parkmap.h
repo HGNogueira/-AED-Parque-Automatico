@@ -14,24 +14,39 @@
  *  Function list:
  *    A) Initialization & Termination
  *        mapInit
+ *        buildGraphs
  *        mapDestroy
  *
- *    B) Properties
- *        ---
+ *    B) Lookup
+ *        getMapRepDesc
+ *        PgetN
+ *        PgetM
+ *        PgetP
+ *        isParkFull
  *
- *    C) Navigation
- *        ---
+ *    C) Output
+ *        mapPrintStd
+ *        writeOutput
+ *        WriteOutputAfterIn
+ *    
+ *    D) Modify
+ *        clearSpotCoordinates
+ *        clearSpotIDandWrite
+ *        restrictMapCoordinate
+ *        freeRestrictionMapCoordinate
+ *        restrictMapFloor
+ *        freeRestrictionMapFloor
  *
- *    D) Lookup
- *        ---
+ *    E) Compute
+ *        findPath
  *
- *
- *  Dependencies:
- *    dbg.h
+ *  Non-standard dependencies:
  *    point.h
- *    stdlib.h
- *    stdio.h
- *    string.h
+ *    graphL.h
+ *    queue.h
+ *    prioQ.h
+ *    htable.h
+ *    escreve_saida.h
  *
  *  Version: 1.0
  *
@@ -71,8 +86,8 @@ Map *mapInit(char *filename);
  *    buildGraphs
  *
  *  Description: 
- *    generates the car path graph and peon path graphs using the given
- *    configuration
+ *    generates the car path graph and peon path  weighted directed graphs
+ *    using the already built mapRep matrices
  *
  *  Arguments:
  *    pointer to map structure
@@ -101,59 +116,59 @@ void buildGraphs(Map *parkMap);
 void mapPrintStd(Map *parkMap);
 
 
-/*
- *  Function:
- *    printGraph
+/* 
+ * Functions:
+ *     writeOutput
+ *     writeOutputAfterIN
  *
- *  Description:
- *    prints the car and peon graphs previously generated respectively
+ * Description:
+ *     using the escreve_saidas module, these functions serve as a way to 
+ *  easily write the output according to protocol format.
+ *     While the first one will write include the first point of the path
+ *  the second one wont
  *
- *  Arguments:
- *    FILE *fp - stream to print out info
- *    Map *parkMap - configuration map
+ * Arguments:
+ *      FILE *fp - file to print
+ *      Map *parkMap - Map structure respective to the path
+ *      int *st - path vector
+ *      int cost - total cost of a path according to protocol metric system
+ *      int time - time indicating the beggining
+ *      char *ID - vehicle string identifier
+ *      char accessType - desired destiny of the vehicle
+ *      int origTime - original entrance time according to input file (AfterIn)
+ *      int pathSize - number of moves contained in a path
  *
- *  Return value:
- *  void
+ *  return value:
+ *      none
+ *
  */
 
-void printGraph(FILE *fp, Map *parkMap);
-
-
-/*
- *  Function:
- *    getAccessPoints
- *
- *  Description:
- *    returns the int identifier of the special access type node
- *
- *  Arguments:
- *    Map *parkMap - configuration map
- *    char desc - access type descriptor character
- *
- *  Return value:
- *    int - number of node
- */
-
-int getAccessTypeNode(Map *parkMap, char desc);
-
-void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, char accessType);
+void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID, 
+                                              char accessTypem, int pathSize);
 void writeOutputAfterIn(FILE *fp, Map *parkMap, int *st, int cost, int time,
-                 char *ID, char accessType, int origTime);
+                 char *ID, char accessType, int origTime, int pathSize);
 
-/*
- *  Function:
- *    getAccessPoints
+
+/* Functions:
+ *     getMapRepDesc
+ *     PgetN
+ *     PgetM
+ *     PgetP
  *
- *  Description:
- *    returns table with access points of a certain description
+ * Description:
+ *     field getter functions:
  *
- *  Arguments:
- *    Map *parkMap - configuration map
- *    char desc - descriptive character of desired type of access
- *    int *size - reference to a size variable, will save table size
+ *         getMapRepDesc - returns respective node character descriptor
+ *         PgetN - returns number of xx axis columns in the park configuration
+ *         PgetM - returns number of yy rows ...
+ *         PgetP - returns the number of floors ....
  *
- *  Return value:
- *    Point * - table of access points
+ * Arguments:
+ *     Map *parkMap - configuration Map
+ *     int node - respective node  (getMapRepDesc)
+ *
+ * Return value:
+ *     char - respective character descriptor of the map representation
  */
 
 char getMapRepDesc(Map *parkMap, int node);
@@ -198,12 +213,14 @@ void clearSpotIDandWrite(FILE *fp, Map *parkMap, char *ID, int time);
  *    int ex, ey, ez - entrance point coordinates
  *    Point *access - contains information about the destiny node
  *    int *cost - reference of int to use as total cost of path 
+ *    int *stSize - size of the path
  *
  *  Return value:
  *    int *st - path vector
  */
 
-int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, int *cost);
+int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, 
+                                    char accessType, int *cost, int *stSize);
 
 
 /*
@@ -241,6 +258,7 @@ void restrictMapCoordinate(Map *parkMap, int x, int y, int z);
 
 void freeRestrictionMapCoordinate(Map *parkMap, int x, int y, int z);
 
+
 /*
  * Function:
  *     restrictMapFloor
@@ -274,6 +292,16 @@ void restrictMapFloor(Map *parkMap, int floor);
  */
 
 void freeRestrictionMapFloor(Map *parkMap, int floor);
+
+
+/*
+ * Function:
+ *     isParkFull
+ *
+ * Description:
+ *     by keeping track of the available spots in a parking lot we are able to
+ *  say if the parking lot is available or not
+ */
 
 int isParkFull(Map *parkMap);
 

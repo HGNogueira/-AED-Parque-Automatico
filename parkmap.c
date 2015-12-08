@@ -887,6 +887,7 @@ void writeOutput(FILE *fp, Map *parkMap, int *st, int cost, int time, char *ID,
  *      int time - time indicating the beggining
  *      char *ID - vehicle string identifier
  *      char accessType - desired destiny of the vehicle
+ *      int origTime - original entrance time according to input file
  *      int pathSize - number of moves contained in a path
  *  
  *  Return value:
