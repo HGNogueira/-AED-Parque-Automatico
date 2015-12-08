@@ -239,7 +239,7 @@ int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ, Map *pa
         /* check to see if it is a ramp */
         desc = getMapRepDesc(parkMap, hP);
         if( desc == 'u' || desc == 'd'){
-            prevDesc = getMapRepDesc(parkMap, hP);
+            prevDesc = getMapRepDesc(parkMap, st[hP]);
             /* if previous was a ramp as well, we may go in all directions */
             if( prevDesc == 'u' || prevDesc == 'd'){
                 for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
@@ -253,14 +253,15 @@ int GDijkstra(GraphL *G,int root, int dest, int *st, int *wt, PrioQ *PQ, Map *pa
             } else{
                 for(t = G->adjL[ hP ]; t != NULL; t = getNextNodeLinkedList(t)){
                     e = getItemLinkedList(t);
-                    if( (e->w - hP != PgetN(parkMap) * PgetN(parkMap)) &&
-                        (hP - e->w != PgetN(parkMap) * PgetN(parkMap)) )
+                    if( (e->w - hP != PgetN(parkMap) * PgetM(parkMap)) &&
+                        (hP - e->w != PgetN(parkMap) * PgetM(parkMap)) )
                         continue;
                     if( wt[ e->w ] > wt[hP] + e->value) {
                         wt[ e->w ] = wt[hP] + e->value;
                         PQupdateNode(PQ, e->w);
                         st[e->w] = hP;
                     }
+                    break;
                 }
             
             }
