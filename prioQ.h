@@ -6,6 +6,8 @@ typedef struct _prioQ PrioQ;
 PrioQ *PQinit(int *wt, int size);
 void PQupdate(PrioQ *PQ);
 void PQupdateNode(PrioQ *PQ, int node);
+void PQupdateNodeHighPrio(PrioQ *PQ, int node);
+
 void PQReinsert(PrioQ *PQ, int node);
 int PQdelmin(PrioQ* PQ);
 

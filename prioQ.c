@@ -13,6 +13,7 @@ struct _prioQ{
 
 void FixDown(PrioQ *PQ, int heapIndex);
 void FixUp(PrioQ *PQ, int heapIndex);
+void FixUpHighPrio(PrioQ *PQ, int heapIndex);
 
 PrioQ *PQinit(int *wt, int size){
     int i;
@@ -43,6 +44,23 @@ void PQupdate(PrioQ *PQ){
 }
 
 void PQupdateNode(PrioQ *PQ, int node){
+    int *heap = PQ->heap;
+    int *wt = PQ->wt;
+    int heapIndex = PQ->index[node];
+    /* verify if index corresponds to heap's highest priority */
+    if(heapIndex == 0)
+        FixDown(PQ, 0);
+    /* try to FixUp first */
+    else if(wt[ heap[heapIndex] ] < wt[ heap[(heapIndex - 1)/2] ]) {
+        FixUp(PQ, heapIndex);
+        return;
+    }
+    /* if we dont FixUp we can FixDown */
+    FixDown(PQ, heapIndex);
+    return;
+}
+
+void PQupdateNodeHighPrio(PrioQ *PQ, int node){
     int *heap = PQ->heap;
     int *wt = PQ->wt;
     int heapIndex = PQ->index[node];
@@ -190,6 +208,35 @@ void FixDown(PrioQ *PQ, int heapIndex) {
 
 
 void FixUp(PrioQ *PQ, int heapIndex) {
+    int i, j;
+    int *heap, *wt, *index;
+    int aux;
+
+    heap = PQ->heap;
+    wt = PQ->wt;
+    index = PQ->index;
+
+    i = heapIndex;
+    while(i > 0){
+        j = (i - 1)/2;
+        if( wt[heap[i]] < wt[heap[j]] ) {
+            aux = heap[j];
+
+            heap[j] = heap[i];
+            index[ heap[i] ] = j;
+
+            heap[i] = aux;
+            index[ aux ] = i;
+            i = j;
+            continue;
+        }
+        return;
+    }
+    return;
+}
+
+
+void FixUpHighPrio(PrioQ *PQ, int heapIndex) {
     int i, j;
     int *heap, *wt, *index;
     int aux;
