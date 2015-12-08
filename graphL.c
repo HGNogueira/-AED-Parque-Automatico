@@ -178,7 +178,7 @@ int GisNodeActive(GraphL *g, int v){
     return g->active[v];
 }
 
-void GDijkstraCleanToPark(GraphL *G, Map *parkMap, LinkedList *actions, int *st,
+void GDijkstraCleanToDest(GraphL *G, Map *parkMap, LinkedList *actions, int *st,
                                             int *wt, PrioQ *PQ, int cleanDest){
     action *a;
     LinkedList *t;
