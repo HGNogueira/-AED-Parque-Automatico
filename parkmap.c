@@ -1092,7 +1092,6 @@ int *findPath(Map *parkMap, char *ID, int ex, int ey, int ez, char accessType, i
     PQ = parkMap->PQ;
 
     /* set origin definitions and update PQ */
-    st[origin] = -1;
     wt[origin] = 0;
     PQupdateNode(PQ, origin);
 
