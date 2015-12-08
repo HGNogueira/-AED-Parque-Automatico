@@ -24,6 +24,12 @@
  *      For implementation purposes it was created a struct order which just
  *  contains any important information for each action to take
  *
+ *  Non standard interface dependencies:
+ *      parkmap.h - main program module
+ *      LinkedList.h - list ADT
+ *      escreve_saida.h - writing to output auxiliary module
+ *      queue.h - first in first out queue ADT implementation
+ *
  *  Version: 1.0
  *
  *  Change log: N/A
@@ -32,14 +38,27 @@
 
 
 #include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 
 #include"parkmap.h"
-#include"point.h"
 #include"LinkedList.h"
-#include"stdlib.h"
-#include"string.h"
 #include"escreve_saida.h"
 #include"queue.h"
+
+
+/*
+ *  Data Type: Order
+ *
+ *  Fields:
+ *      char type - descriptor character of an associated type to the order
+ *      char action - descriptor character of the action to take
+ *          Example:
+ *              a new car coming into the park would have an action descriptor
+ *          'E' while one leaving would have an action descriptor 'C'
+ *      int x, y, z - respective 3D coordinates
+ *      char *id - string identifier (used to identify vehicles)
+ */
 
 typedef struct _order{
     /* char type - describes type of order:
@@ -55,6 +74,18 @@ typedef struct _order{
     char *id;                   
 } Order;
 
+
+/*
+ *  Function: OrderDestroy
+ *
+ *  Description:
+ *      frees all memory previously allocated in struct Order
+ *
+ *  Purpose:
+ *      to send as pointer to freeLinkedList function in order to free the 
+ *  order's list
+ */
+
 void OrderDestroy(Item order){
     if( order == NULL)
         return;
@@ -65,12 +96,14 @@ void OrderDestroy(Item order){
 }
     
 
-void Usage(){
-    fprintf(stderr, "Usage:\n\t./gestor <parque.cfg> <parque.inp> [parque.res]\n");
-    return;
-}
+/*
+ * Function: loadInstructionFile
+ *
+ * Description:
+ *      loads instructions given in the .inp file and lists them in reverse order
+ *  using struct Order in a LinkedList
+ */
 
-/* loads instructions into simple orders time ordered list */
 LinkedList *loadInstructionFile(char *inpfile){
     FILE *fp;
     char buffer[256];
@@ -142,7 +175,15 @@ LinkedList *loadInstructionFile(char *inpfile){
     return t;
 }
 
-/* loads restrictions into simple orders time ordered list */
+
+/* 
+ * Function: loadRestrictionFile
+ *
+ * Description:
+ *       similarly to loadInstructionFile function it lists the restrictions 
+ *  given by the input file in reverse order using the Order data type
+ */
+
 LinkedList *loadRestrictionFile(char *resfile){
     FILE *fp;
     int ta, tb, x, y, z;
@@ -216,7 +257,16 @@ LinkedList *loadRestrictionFile(char *resfile){
     return t;
 }
 
-/* function used by inpresShuffleOrder to compare times */
+/*
+ * Auxiliary-function: compareOrderTime
+ *
+ * Description:
+ *      compares times fields in 2 orders given as void * arguments
+ *
+ * Purpose: 
+ *      used in inpresShuffleOrder Function ahead in a way to merge 2 lists 
+ *  in reverse order
+ */
 int compareOrderTime(Item order1, Item order2){
     if( ((Order *) order1)->time <= ((Order *) order2)->time)
         return 1;
@@ -224,10 +274,26 @@ int compareOrderTime(Item order1, Item order2){
         return 0;
 }
 
-/* merges two orderedLists into one reverse ordered list */
+
+/*
+ * Function: inpresShuffleOrder
+ *
+ * Description:
+ *      merges 2 ordered lists of Orders Data Type into one list in reverse
+ *  order
+ *
+ * Purpose:
+ *      to merge a reverse order Restriction list and a reverse order 
+ *  Instruction list into a time increasing ordered list of both
+ *
+ *      Note: since lists are given in reverse order, the reverse of the
+ *  reverse is the original order, which we wish to maintain
+ */
+
 LinkedList *inpresShuffleOrder(LinkedList *inpList, LinkedList *resList){
     return mergeOrderedLists(inpList, resList, compareOrderTime);
 }
+
 
 int main(int argc, char* argv[]) {
     Map *parkMap;
@@ -241,8 +307,8 @@ int main(int argc, char* argv[]) {
     Queue *Q;
     
     if(argc < 3) {
-        Usage();
-        return 1;
+        fprintf(stderr, "Usage: %s <park.cfg> <park.inp> [park.res]\n", argv[0]);
+        exit(1);
     }
 
     parkMap = mapInit(argv[1]);
